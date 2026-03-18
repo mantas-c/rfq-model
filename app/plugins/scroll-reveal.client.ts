@@ -1,5 +1,6 @@
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.directive('reveal', {
+    getSSRProps() { return {} },
     mounted(el, binding) {
       const opts = typeof binding.value === 'object' ? binding.value : {}
       const delay: number = opts.delay ?? 0
