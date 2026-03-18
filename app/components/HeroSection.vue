@@ -37,67 +37,13 @@
             Raskite originalias naudotas dalis iš patikimų pardavėjų visoje Europoje. Greitas pristatymas, saugi apmokėjimo sistema.
           </p>
 
-          <!-- Search wizard card with integrated tabs -->
+          <!-- Search wizard card -->
           <div v-reveal="{ delay: 420, dir: 'scale' }" class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
 
-            <!-- Tab bar -->
-            <div class="grid grid-cols-4 border-b border-gray-100">
-              <button
-                v-for="vtype in vehicleTypes"
-                :key="vtype.id"
-                @click="activeType = vtype.id"
-                class="relative flex flex-col items-center justify-center gap-1 py-3 px-1 transition-all duration-150 cursor-pointer select-none"
-                :class="activeType === vtype.id
-                  ? 'bg-white text-gray-950'
-                  : 'bg-gray-50 text-gray-400 hover:bg-gray-100/80 hover:text-gray-600'"
-              >
-                <span class="text-lg leading-none">{{ vtype.icon }}</span>
-                <span class="text-[10px] sm:text-xs font-semibold leading-tight text-center">{{ vtype.label }}</span>
-                <!-- Active underline -->
-                <div
-                  v-if="activeType === vtype.id"
-                  class="absolute bottom-0 left-3 right-3 h-0.5 rounded-t-full"
-                  :style="{ background: vtype.color }"
-                ></div>
-              </button>
-            </div>
-
-            <!-- Tab content -->
             <div class="p-4 sm:p-5 space-y-3">
 
-              <!-- OEM search (OEM tab only) -->
-              <template v-if="activeType === 'oem'">
-                <div class="relative">
-                  <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
-                  </svg>
-                  <input
-                    v-model="oemCode"
-                    type="text"
-                    placeholder='Įveskite OEM kodą, pvz. "11127553456"...'
-                    class="w-full pl-10 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all font-mono"
-                  >
-                </div>
-                <div class="relative">
-                  <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                  </svg>
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="arba dalies pavadinimas..."
-                    class="w-full pl-10 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
-                  >
-                </div>
-                <p class="text-xs text-gray-400 flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                  OEM kodas – gamintojo originalus detalės numeris
-                </p>
-              </template>
-
-              <!-- Vehicle search (car / moto / commercial) -->
-              <template v-else>
-                <div class="relative">
+              <!-- Vehicle search -->
+              <div class="relative">
                   <svg class="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                   </svg>
@@ -149,102 +95,19 @@
                     <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                   </div>
                 </div>
-              </template>
 
               <button
                 @click="goSearch"
-                class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 sm:py-4 rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 text-sm sm:text-base"
-                :class="activeType === 'oem'
-                  ? 'bg-amber-500 hover:bg-amber-600 hover:shadow-amber-200'
-                  : 'bg-brand-green hover:bg-brand-green-dark hover:shadow-green-200'"
+                class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 sm:py-4 rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 text-sm sm:text-base bg-brand-green hover:bg-brand-green-dark hover:shadow-green-200"
               >
                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                {{ activeType === 'oem' ? 'IEŠKOTI PAGAL OEM' : 'IEŠKOTI' }}
+                IEŠKOTI
               </button>
             </div>
           </div>
 
-          <!-- Provider logos -->
-          <div v-reveal="{ delay: 500 }" class="space-y-3">
-            <!-- Carriers -->
-            <div class="flex items-center gap-3 flex-wrap">
-              <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-widest w-[72px] flex-shrink-0">Pristatymas</span>
-              <div class="flex items-center gap-2 flex-wrap">
-                <!-- DPD -->
-                <div class="h-8 px-2.5 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 60 24" class="h-4 w-auto">
-                    <rect x="0" y="0" width="60" height="24" rx="3" fill="#DC0032"/>
-                    <text x="30" y="17" text-anchor="middle" fill="white" font-size="13" font-weight="900" font-family="Arial,sans-serif" letter-spacing="1">DPD</text>
-                  </svg>
-                </div>
-                <!-- DHL -->
-                <div class="h-8 px-2.5 bg-[#FFCC00] border border-yellow-300 rounded-lg shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 52 20" class="h-4 w-auto">
-                    <text x="26" y="15" text-anchor="middle" fill="#D40511" font-size="15" font-weight="900" font-family="Arial,sans-serif" letter-spacing="0.5">DHL</text>
-                  </svg>
-                </div>
-                <!-- GLS -->
-                <div class="h-8 px-2.5 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 52 22" class="h-4 w-auto">
-                    <rect x="0" y="0" width="52" height="22" rx="3" fill="#005CA9"/>
-                    <text x="26" y="15.5" text-anchor="middle" fill="white" font-size="12" font-weight="900" font-family="Arial,sans-serif" letter-spacing="1">GLS</text>
-                  </svg>
-                </div>
-                <!-- Venipak -->
-                <div class="h-8 px-2.5 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 80 22" class="h-4 w-auto">
-                    <text x="40" y="16" text-anchor="middle" fill="#E30613" font-size="12" font-weight="800" font-family="Arial,sans-serif">Venipak</text>
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <!-- Payments -->
-            <div class="flex items-center gap-3 flex-wrap">
-              <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-widest w-[72px] flex-shrink-0">Mokėjimas</span>
-              <div class="flex items-center gap-2 flex-wrap">
-                <!-- VISA -->
-                <div class="h-8 px-2.5 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 60 20" class="h-4 w-auto">
-                    <text x="30" y="15" text-anchor="middle" fill="#1A1F71" font-size="15" font-weight="900" font-family="Arial,sans-serif" letter-spacing="2" font-style="italic">VISA</text>
-                  </svg>
-                </div>
-                <!-- Mastercard -->
-                <div class="h-8 px-2.5 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 46 28" class="h-5 w-auto">
-                    <circle cx="16" cy="14" r="12" fill="#EB001B" opacity="0.95"/>
-                    <circle cx="30" cy="14" r="12" fill="#F79E1B" opacity="0.95"/>
-                    <path d="M23 6.5 Q27 14 23 21.5 Q19 14 23 6.5Z" fill="#FF5F00"/>
-                  </svg>
-                </div>
-                <!-- Apple Pay -->
-                <div class="h-8 px-2.5 bg-black border border-black rounded-lg shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 70 22" class="h-4 w-auto">
-                    <text x="35" y="16" text-anchor="middle" fill="white" font-size="11" font-weight="600" font-family="-apple-system,sans-serif" letter-spacing="0.3"> Pay</text>
-                    <path d="M12 4 Q9 4 8 7 Q11 7 12 4Z M8.5 8 Q7 8.5 7 10.5 Q7 13 8.5 14.5 Q9.5 15.5 11 15.5 Q12 15.5 13 14.5 Q14 15.5 15.5 15.5 Q17 15.5 18 14.5 Q19.5 13 19.5 10.5 Q19.5 8 17.5 7 Q16.5 6.5 15.5 7 Q14.5 7.5 14 8 Q13.5 7.5 12.5 7 Q11.5 6.5 10.5 7 Q9.5 7.5 8.5 8Z" fill="white"/>
-                  </svg>
-                </div>
-                <!-- Google Pay -->
-                <div class="h-8 px-2.5 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center gap-0.5">
-                  <svg viewBox="0 0 76 24" class="h-4 w-auto">
-                    <text x="2" y="17" fill="#4285F4" font-size="14" font-weight="700" font-family="Arial,sans-serif">G</text>
-                    <text x="14" y="17" fill="#EA4335" font-size="14" font-weight="700" font-family="Arial,sans-serif">o</text>
-                    <text x="23" y="17" fill="#FBBC05" font-size="14" font-weight="700" font-family="Arial,sans-serif">o</text>
-                    <text x="33" y="17" fill="#4285F4" font-size="14" font-weight="700" font-family="Arial,sans-serif">g</text>
-                    <text x="41" y="17" fill="#34A853" font-size="14" font-weight="700" font-family="Arial,sans-serif">le</text>
-                    <text x="53" y="17" fill="#5F6368" font-size="12" font-weight="600" font-family="Arial,sans-serif"> Pay</text>
-                  </svg>
-                </div>
-                <!-- Bank transfer -->
-                <div class="h-8 px-2.5 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18l7.5-3 7.5 3M6.75 21V10.5m10.5 10.5V10.5M3 10.5h18M12 3v1.5M6 10.5v10.5M18 10.5v10.5"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Right: Europe Map — desktop only -->
@@ -444,29 +307,47 @@ let saleCounter = 0
 let poolIndex = 0
 
 function cardOffset(sale: Sale): string {
-  // Position card above the dot, flip below if near top edge, nudge if near sides
-  const above = sale.y > 22
-  const nudgeLeft = sale.x > 72 ? '-100%' : sale.x < 20 ? '0%' : '-50%'
-  const top = above ? 'auto' : '12px'
-  const bottom = above ? '12px' : 'auto'
-  return `bottom:${bottom};top:${top};left:0;transform:translateX(${nudgeLeft})`
+  // Place card above the dot by default, below if near top edge
+  const above = sale.y > 28
+  // Nudge horizontally so card doesn't escape map edges
+  const nudge = sale.x > 68 ? '-90%' : sale.x < 22 ? '0%' : '-50%'
+  const top = above ? 'auto' : '14px'
+  const bottom = above ? '14px' : 'auto'
+  return `bottom:${bottom};top:${top};left:0;transform:translateX(${nudge})`
+}
+
+function isTooClose(candidate: typeof salePool[0]): boolean {
+  // Prevent spawning if any active card is within 18% distance on the map
+  return activeSales.value.some(s => {
+    const dx = s.x - candidate.x
+    const dy = s.y - candidate.y
+    return Math.sqrt(dx * dx + dy * dy) < 18
+  })
 }
 
 function spawnSale() {
-  // Remove oldest if already 4 active
-  if (activeSales.value.length >= 4) activeSales.value.shift()
+  // Max 2 visible at once to avoid crowding
+  if (activeSales.value.length >= 2) activeSales.value.shift()
+
+  // Try up to 8 candidates to find one that doesn't collide
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const item = salePool[poolIndex % salePool.length]
+    poolIndex++
+    if (!isTooClose(item)) {
+      activeSales.value.push({ ...item, id: ++saleCounter })
+      return
+    }
+  }
+  // Fallback: just add and shift anyway
   const item = salePool[poolIndex % salePool.length]
   poolIndex++
   activeSales.value.push({ ...item, id: ++saleCounter })
 }
 
 onMounted(() => {
-  // Stagger initial batch
-  setTimeout(() => spawnSale(), 600)
-  setTimeout(() => spawnSale(), 1800)
-  setTimeout(() => spawnSale(), 3000)
-  // Then regular interval
-  const interval = setInterval(spawnSale, 2800)
+  setTimeout(() => spawnSale(), 800)
+  setTimeout(() => spawnSale(), 2600)
+  const interval = setInterval(spawnSale, 3200)
   onUnmounted(() => clearInterval(interval))
 })
 </script>

@@ -86,15 +86,19 @@
           <!-- Empty state -->
           <CatalogEmptyState v-if="filteredListings.length === 0" @clear="resetFilters" />
 
-          <!-- Pagination -->
-          <CatalogPagination
-            v-if="filteredListings.length > 0"
-            :current-page="page"
-            :total-pages="totalPages"
-            :total="filteredListings.length"
-            :per-page="PER_PAGE"
-            @update:page="page = $event"
-          />
+          <!-- Infinite scroll sentinel -->
+          <div ref="sentinel" class="py-8 flex justify-center">
+            <div v-if="visibleCount < filteredListings.length" class="flex items-center gap-2 text-sm text-gray-400">
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+              Kraunama...
+            </div>
+            <div v-else-if="filteredListings.length > 0" class="text-xs text-gray-300">
+              Rodyti visi {{ filteredListings.length }} rezultatai
+            </div>
+          </div>
         </main>
       </div>
     </div>
@@ -112,7 +116,8 @@ const PER_PAGE = 12
 const drawerOpen = ref(false)
 const sort = ref('newest')
 const view = ref<'grid' | 'list'>('grid')
-const page = ref(1)
+const visibleCount = ref(PER_PAGE)
+const sentinel = ref<HTMLElement | null>(null)
 
 const defaultFilters = (): Filters => ({
   vehicleType: 'car',
@@ -166,8 +171,18 @@ const activeChips = computed(() => {
   return chips
 })
 
-// Reset page when filters change
-watch(filters, () => { page.value = 1 }, { deep: true })
+// Reset visible count when filters change
+watch(filters, () => { visibleCount.value = PER_PAGE }, { deep: true })
+
+onMounted(() => {
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && visibleCount.value < filteredListings.value.length) {
+      setTimeout(() => { visibleCount.value += PER_PAGE }, 400)
+    }
+  }, { rootMargin: '200px' })
+  if (sentinel.value) observer.observe(sentinel.value)
+  onUnmounted(() => observer.disconnect())
+})
 
 // --- Mock data ---
 const allListings: Listing[] = [
@@ -217,10 +232,5 @@ const filteredListings = computed(() => {
   return list
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredListings.value.length / PER_PAGE)))
-
-const paginatedListings = computed(() => {
-  const start = (page.value - 1) * PER_PAGE
-  return filteredListings.value.slice(start, start + PER_PAGE)
-})
+const paginatedListings = computed(() => filteredListings.value.slice(0, visibleCount.value))
 </script>

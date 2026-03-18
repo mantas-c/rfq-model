@@ -1,6 +1,7 @@
 <template>
   <div>
     <HeroSection />
+    <VehicleTypesSection />
     <StatsSection />
     <ManufacturersSection />
     <CategoriesSection />

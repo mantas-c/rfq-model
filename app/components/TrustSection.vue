@@ -2,37 +2,104 @@
   <section class="py-24 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
 
-      <!-- Testimonials -->
+      <!-- Trustpilot Reviews -->
       <div>
-        <div v-reveal class="text-center max-w-2xl mx-auto mb-12">
-          <p class="text-sm font-semibold text-brand-green uppercase tracking-widest mb-3">Atsiliepimai</p>
-          <h2 class="text-3xl lg:text-4xl font-black text-gray-950 tracking-tight">Ką sako mūsų klientai</h2>
+        <!-- Header with Trustpilot branding -->
+        <div v-reveal class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
+          <div>
+            <p class="text-sm font-semibold text-brand-green uppercase tracking-widest mb-2">Atsiliepimai</p>
+            <h2 class="text-3xl lg:text-4xl font-black text-gray-950 tracking-tight">Ką sako mūsų klientai</h2>
+          </div>
+
+          <!-- Trustpilot widget -->
+          <div class="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-sm flex-shrink-0">
+            <!-- Trustpilot logo -->
+            <div class="flex flex-col items-center">
+              <div class="flex items-center gap-1.5 mb-1">
+                <svg viewBox="0 0 126 26" class="h-5 w-auto" fill="none">
+                  <rect width="26" height="26" rx="2" fill="#00B67A"/>
+                  <path d="M13 5l2.09 6.43H21l-4.95 3.6L18.09 21 13 17.4 7.91 21l2.04-5.97L5 11.43h5.91z" fill="white"/>
+                  <text x="32" y="19" font-family="Arial, sans-serif" font-weight="700" font-size="15" fill="#191919" letter-spacing="-0.3">Trustpilot</text>
+                </svg>
+              </div>
+              <div class="flex gap-0.5">
+                <div v-for="i in 5" :key="i" class="w-5 h-5 flex items-center justify-center rounded-sm" style="background:#00B67A">
+                  <svg viewBox="0 0 24 24" class="w-3 h-3 fill-white">
+                    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="w-px h-10 bg-gray-100"></div>
+            <div>
+              <div class="text-2xl font-black text-gray-950 leading-none">4.8</div>
+              <div class="text-xs font-semibold text-gray-500 mt-0.5">Puiku · 328 atsiliepimai</div>
+            </div>
+          </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Review cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div
             v-for="(review, i) in reviews"
             :key="review.name"
             v-reveal="{ delay: i * 100 }"
-            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-300 flex flex-col gap-4"
           >
-            <!-- Stars -->
-            <div class="flex gap-1 mb-4">
-              <svg v-for="i in 5" :key="i" class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            <!-- Stars row -->
+            <div class="flex items-center justify-between">
+              <div class="flex gap-0.5">
+                <div v-for="s in 5" :key="s" class="w-5 h-5 flex items-center justify-center rounded-sm" :style="{ background: s <= review.stars ? '#00B67A' : '#ddd' }">
+                  <svg viewBox="0 0 24 24" class="w-3 h-3 fill-white">
+                    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+                  </svg>
+                </div>
+              </div>
+              <!-- Trustpilot mini logo -->
+              <svg viewBox="0 0 18 18" class="w-4 h-4 flex-shrink-0" fill="none">
+                <rect width="18" height="18" rx="2" fill="#00B67A"/>
+                <path d="M9 3.5l1.45 4.46H15l-3.43 2.49 1.31 4.05L9 12.12l-3.88 2.38 1.31-4.05L3 8.96h4.55z" fill="white"/>
               </svg>
             </div>
-            <p class="text-gray-600 text-sm leading-relaxed mb-5">"{{ review.text }}"</p>
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold text-white"
-                :class="review.color">
-                {{ review.name[0] }}
+
+            <!-- Title -->
+            <h3 class="font-bold text-gray-950 text-sm leading-snug">{{ review.title }}</h3>
+
+            <!-- Body -->
+            <p class="text-gray-500 text-sm leading-relaxed flex-1">"{{ review.text }}"</p>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-between pt-3 border-t border-gray-50">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0" :style="{ background: review.color }">
+                  {{ review.name[0] }}
+                </div>
+                <div>
+                  <div class="font-semibold text-gray-900 text-xs">{{ review.name }}</div>
+                  <div class="text-[10px] text-gray-400">{{ review.car }}</div>
+                </div>
               </div>
-              <div>
-                <div class="font-semibold text-gray-900 text-sm">{{ review.name }}</div>
-                <div class="text-xs text-gray-400">{{ review.car }}</div>
+              <div class="flex flex-col items-end gap-1">
+                <div class="flex items-center gap-1 text-[10px] text-green-600 font-semibold">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  Patvirtinta
+                </div>
+                <div class="text-[10px] text-gray-400">{{ review.date }}</div>
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- View all on Trustpilot -->
+        <div v-reveal class="text-center mt-8">
+          <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+            Peržiūrėti visus atsiliepimus Trustpilot platformoje
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
         </div>
       </div>
 
@@ -57,29 +124,65 @@
 <script setup lang="ts">
 const reviews = [
   {
-    text: 'Puikus servisas! Radau BMW E60 variklio dangtį labai geromis kainomis iš Vokietijos. Dalis atėjo greitai ir gerai supakuota.',
-    name: 'Tomas Kazlauskas',
+    stars: 5,
+    title: 'Puikus servisas, greitas pristatymas!',
+    text: 'Radau BMW E60 variklio dangtį labai geromis kainomis iš Vokietijos. Dalis atėjo per 3 darbo dienas, puikiai supakuota. Tikrai rekomenduoju.',
+    name: 'Tomas K.',
     car: 'BMW 5 serija',
-    color: 'bg-blue-500'
+    color: '#1d4ed8',
+    date: '2024-12-14',
   },
   {
-    text: 'Labai patogu naršyti ir filtruoti pagal automobilio modelį. Radau retą dalį Audi Q7, kurios neradau jokioje kitoje vietoje.',
-    name: 'Rasa Petrauskienė',
+    stars: 5,
+    title: 'Retą dalį radau čia, ne kur kitur',
+    text: 'Labai patogu filtruoti pagal automobilio modelį. Radau retą dalį Audi Q7, kurios neradau jokioje kitoje vietoje. Pardavėjas atsakė greitai.',
+    name: 'Rasa P.',
     car: 'Audi Q7 4L',
-    color: 'bg-purple-500'
+    color: '#7c3aed',
+    date: '2025-01-03',
   },
   {
-    text: 'Greitas pristatymas per DHL, dalis atitiko aprašymą. Tikrai rekomenduoju visiems, kas ieško naudotų automobilių dalių.',
-    name: 'Mantas Jonaitis',
+    stars: 5,
+    title: 'Greitas ir saugus pirkimas',
+    text: 'Greitas pristatymas per DHL, dalis atitiko aprašymą 100%. Kainų palyginimas pagal OEM kodą – geniali funkcija. Tikrai grįšiu.',
+    name: 'Mantas J.',
     car: 'Volvo XC60',
-    color: 'bg-green-500'
-  }
+    color: '#16a34a',
+    date: '2025-01-18',
+  },
+  {
+    stars: 4,
+    title: 'Geras pasirinkimas, patikima platforma',
+    text: 'Užsakiau VW Passat B8 stabdžių diskus. Kaina konkurencinga, pristatymas iš Lenkijos užtruko 4 d.d. Dalis tiko tiksliai. Rekomenduoju.',
+    name: 'Erikas M.',
+    car: 'VW Passat B8',
+    color: '#0891b2',
+    date: '2025-02-05',
+  },
+  {
+    stars: 5,
+    title: 'Profesionalūs pardavėjai, puiki kokybė',
+    text: 'Jau trečias pirkimas šioje platformoje. Visada aukšta kokybė, tikslūs aprašymai ir greitas atsakymas į klausimus. Labai patenkintas.',
+    name: 'Darius S.',
+    car: 'Mercedes E klasė',
+    color: '#dc2626',
+    date: '2025-02-22',
+  },
+  {
+    stars: 5,
+    title: 'OEM kainų palyginimas – super!',
+    text: 'Suvedžiau OEM kodą ir iškart pamačiau 5 skirtingus pasiūlymus iš Europos. Sutaupiau 40% lyginant su vietinėmis dalimis. Nuostabu.',
+    name: 'Živilė B.',
+    car: 'Ford Mondeo V',
+    color: '#d97706',
+    date: '2025-03-01',
+  },
 ]
 
 const trustItems = [
-  { icon: '🛡️', title: 'Saugus mokėjimas', desc: 'SSL šifravimas ir patikimi mokėjimo sprendimai' },
+  { icon: '🛡️', title: 'Saugus mokėjimas',    desc: 'SSL šifravimas ir patikimi mokėjimo sprendimai' },
   { icon: '↩️', title: '14 dienų grąžinimas', desc: 'Grąžinkite be klausimų per 14 dienų' },
   { icon: '✅', title: 'Patikrinti pardavėjai', desc: 'Visi pardavėjai patikrinti ir įvertinti' },
-  { icon: '🚀', title: 'Greitas pristatymas', desc: 'Pristatome per 2–5 darbo dienas' },
+  { icon: '🚀', title: 'Greitas pristatymas',  desc: 'Pristatome per 2–5 darbo dienas' },
 ]
 </script>

@@ -6,29 +6,41 @@
       :style="{ maxHeight: scrolled ? '0px' : '100px', opacity: scrolled ? 0 : 1 }"
     >
       <!-- Announcement Bar -->
-      <div v-if="showAnnouncement" class="bg-gray-950 text-white text-sm py-2 px-4 flex items-center justify-center gap-3 relative">
-        <div class="flex items-center gap-2">
-          <span class="flex gap-1">
-            <span class="w-2 h-2 rounded-full bg-green-500 inline-block mt-0.5"></span>
-            <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block mt-0.5"></span>
-            <span class="w-4 h-2 rounded-full bg-green-700 inline-block mt-0.5"></span>
-          </span>
-          <span class="text-green-400">🏷️</span>
-          <span class="text-yellow-400">⚡</span>
-          <span>Naujiena: <strong>BMW & Mercedes OEM dalys</strong> dabar sandėlyje!</span>
-          <a href="#" class="text-green-400 font-semibold hover:text-green-300 transition-colors underline underline-offset-2">
-            Peržiūrėti →
-          </a>
+      <div v-if="showAnnouncement" class="relative overflow-hidden" style="background: linear-gradient(90deg, #052e16 0%, #14532d 40%, #166534 60%, #052e16 100%);">
+        <!-- Shimmer overlay -->
+        <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);"></div>
+
+        <div class="flex items-center h-9">
+          <!-- Left label -->
+          <div class="flex-shrink-0 flex items-center gap-1.5 px-4 bg-green-500 h-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            <span class="text-white text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Naujienos</span>
+          </div>
+
+          <!-- Scrolling ticker -->
+          <div class="flex-1 overflow-hidden relative">
+            <div class="flex items-center animate-ticker whitespace-nowrap gap-0">
+              <template v-for="_ in 2" :key="_">
+                <span v-for="msg in messages" :key="msg.text" class="inline-flex items-center gap-2 px-8 text-xs font-medium text-white/90">
+                  <span class="text-sm">{{ msg.icon }}</span>
+                  <span v-html="msg.text"></span>
+                  <span class="text-white/30 mx-2">·</span>
+                </span>
+              </template>
+            </div>
+          </div>
+
+          <!-- Close -->
+          <button
+            @click="showAnnouncement = false"
+            class="flex-shrink-0 flex items-center justify-center w-9 h-full text-white/40 hover:text-white transition-colors"
+            aria-label="Close"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
-        <button
-          @click="showAnnouncement = false"
-          class="absolute right-4 text-gray-400 hover:text-white transition-colors"
-          aria-label="Close"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
       </div>
 
       <!-- Secondary Nav — hidden on mobile -->
@@ -132,6 +144,15 @@
 
 <script setup lang="ts">
 const showAnnouncement = ref(true)
+
+const messages = [
+  { icon: '⚡', text: 'Naujiena: <strong>BMW &amp; Mercedes OEM dalys</strong> dabar sandėlyje!' },
+  { icon: '🚚', text: 'Nemokamas pristatymas užsakymams <strong>virš 150 €</strong>' },
+  { icon: '🛡️', text: '<strong>14 dienų</strong> grąžinimo garantija be klausimų' },
+  { icon: '🌍', text: 'Daugiau nei <strong>12,400 dalių</strong> iš 15 Europos šalių' },
+  { icon: '💳', text: 'Atsiskaitykite saugiai: <strong>Visa, Mastercard, Apple Pay</strong>' },
+  { icon: '⭐', text: 'Įvertinti <strong>4.8/5</strong> pagal Trustpilot atsiliepimus' },
+]
 const mobileMenuOpen = ref(false)
 const scrolled = ref(false)
 
@@ -152,3 +173,17 @@ const categories = [
   { icon: '🪑', name: 'Salonas' },
 ]
 </script>
+
+<style scoped>
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-ticker {
+  animation: ticker 28s linear infinite;
+}
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+</style>
+
