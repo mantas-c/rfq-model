@@ -17,13 +17,13 @@
             <div class="flex flex-col items-center">
               <div class="flex items-center gap-1.5 mb-1">
                 <svg viewBox="0 0 126 26" class="h-5 w-auto" fill="none">
-                  <rect width="26" height="26" rx="2" fill="#00B67A"/>
+                  <rect width="26" height="26" rx="2" fill="#14A34A"/>
                   <path d="M13 5l2.09 6.43H21l-4.95 3.6L18.09 21 13 17.4 7.91 21l2.04-5.97L5 11.43h5.91z" fill="white"/>
                   <text x="32" y="19" font-family="Arial, sans-serif" font-weight="700" font-size="15" fill="#191919" letter-spacing="-0.3">Trustpilot</text>
                 </svg>
               </div>
               <div class="flex gap-0.5">
-                <div v-for="i in 5" :key="i" class="w-5 h-5 flex items-center justify-center rounded-sm" style="background:#00B67A">
+                <div v-for="i in 5" :key="i" class="w-5 h-5 flex items-center justify-center rounded-sm" style="background:#14A34A">
                   <svg viewBox="0 0 24 24" class="w-3 h-3 fill-white">
                     <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
                   </svg>
@@ -49,7 +49,7 @@
             <!-- Stars row -->
             <div class="flex items-center justify-between">
               <div class="flex gap-0.5">
-                <div v-for="s in 5" :key="s" class="w-5 h-5 flex items-center justify-center rounded-sm" :style="{ background: s <= review.stars ? '#00B67A' : '#ddd' }">
+                <div v-for="s in 5" :key="s" class="w-5 h-5 flex items-center justify-center rounded-sm" :style="{ background: s <= review.stars ? '#14A34A' : '#ddd' }">
                   <svg viewBox="0 0 24 24" class="w-3 h-3 fill-white">
                     <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
                   </svg>
@@ -57,7 +57,7 @@
               </div>
               <!-- Trustpilot mini logo -->
               <svg viewBox="0 0 18 18" class="w-4 h-4 flex-shrink-0" fill="none">
-                <rect width="18" height="18" rx="2" fill="#00B67A"/>
+                <rect width="18" height="18" rx="2" fill="#14A34A"/>
                 <path d="M9 3.5l1.45 4.46H15l-3.43 2.49 1.31 4.05L9 12.12l-3.88 2.38 1.31-4.05L3 8.96h4.55z" fill="white"/>
               </svg>
             </div>

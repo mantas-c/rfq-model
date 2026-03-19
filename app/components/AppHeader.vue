@@ -67,9 +67,7 @@
           <!-- Logo -->
           <div class="flex items-center gap-8">
             <a href="/" class="flex items-center">
-              <span class="text-2xl font-black text-gray-900 tracking-tight">
-                dalys<span class="text-brand-green">.lt</span>
-              </span>
+              <img src="/logo.svg" alt="dalys.lt" class="h-8 w-auto" />
             </a>
 
             <!-- Desktop Nav Links -->
@@ -110,8 +108,52 @@
               <span class="hidden sm:inline">0.00 €</span>
             </button>
 
+            <!-- Language / Region switcher -->
+            <div class="relative group">
+              <button class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
+                <img src="https://flagcdn.com/w40/lt.png" alt="LT" class="w-5 h-5 rounded-full object-cover" />
+                <span class="hidden sm:inline text-xs font-bold">Lietuvių</span>
+                <svg class="w-3 h-3 text-gray-400 group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+
+              <div class="absolute top-full right-0 mt-1 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0 z-50 overflow-hidden">
+
+                <!-- Languages grid -->
+                <div class="p-4 grid grid-cols-2 gap-1">
+                  <a v-for="lang in languages" :key="lang.code" href="#"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors hover:bg-gray-50 cursor-pointer"
+                    :class="lang.active ? 'opacity-40 pointer-events-none' : ''"
+                  >
+                    <img :src="`https://flagcdn.com/w40/${lang.flag}.png`" :alt="lang.code" class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                    <span class="text-sm font-medium text-gray-800">{{ lang.label }}</span>
+                  </a>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-gray-100"></div>
+
+                <!-- Partversal regions -->
+                <div class="py-2">
+                  <a v-for="r in partversalRegions" :key="r.code" :href="r.href" target="_blank"
+                    class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group/item"
+                  >
+                    <img :src="`https://flagcdn.com/w40/${r.flag}.png`" :alt="r.code" class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-semibold text-gray-900">{{ r.domain }}</div>
+                      <div class="text-xs text-gray-400">{{ r.desc }}</div>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover/item:text-gray-500 flex-shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+
             <!-- Login -->
-            <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all">
+            <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-md hover:-translate-y-px" style="background:#14A34A;">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
@@ -157,10 +199,32 @@ const mobileMenuOpen = ref(false)
 const scrolled = ref(false)
 
 onMounted(() => {
-  const onScroll = () => { scrolled.value = window.scrollY > 50 }
+  const onScroll = () => {
+    const y = window.scrollY
+    if (!scrolled.value && y > 80) scrolled.value = true
+    else if (scrolled.value && y < 40) scrolled.value = false
+  }
   window.addEventListener('scroll', onScroll, { passive: true })
   onUnmounted(() => window.removeEventListener('scroll', onScroll))
 })
+
+const languages = [
+  { code: 'LT', flag: 'lt', label: 'Lietuvių', active: true },
+  { code: 'EN', flag: 'gb', label: 'English',  active: false },
+  { code: 'RU', flag: 'ru', label: 'Русский',  active: false },
+  { code: 'LV', flag: 'lv', label: 'Latviešu', active: false },
+]
+
+const partversalRegions = [
+  { code: 'GB', flag: 'gb', domain: 'partversal.co.uk', desc: 'You will be redirected to Partversal UK',        href: 'https://partversal.co.uk' },
+  { code: 'SE', flag: 'se', domain: 'partversal.se',    desc: 'Du omdirigeras till Partversal Sverige',         href: 'https://partversal.se' },
+  { code: 'FI', flag: 'fi', domain: 'partversal.fi',    desc: 'Sinut ohjataan Partversal Suomeen',              href: 'https://partversal.fi' },
+  { code: 'DE', flag: 'de', domain: 'partversal.de',    desc: 'Sie werden zu Partversal Deutschland weitergeleitet', href: 'https://partversal.de' },
+  { code: 'FR', flag: 'fr', domain: 'partversal.fr',    desc: 'Vous serez redirigé vers Partversal France',     href: 'https://partversal.fr' },
+  { code: 'IT', flag: 'it', domain: 'partversal.it',    desc: 'Sarete reindirizzati a Partversal Italia',       href: 'https://partversal.it' },
+  { code: 'ES', flag: 'es', domain: 'partversal.es',    desc: 'Serás redirigido a Partversal España',           href: 'https://partversal.es' },
+  { code: 'PL', flag: 'pl', domain: 'partversal.pl',    desc: 'Zostaniesz przekierowany do Partversal Polska',  href: 'https://partversal.pl' },
+]
 
 const categories = [
   { icon: '🔧', name: 'Variklio dalys' },

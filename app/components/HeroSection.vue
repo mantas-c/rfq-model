@@ -20,7 +20,7 @@
           <!-- Badge -->
           <div v-reveal="{ delay: 100 }" class="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0"></span>
-            12,400+ dalių iš Europos pardavėjų
+            7,5mln+ dalių iš Patikimų pardavėjų
           </div>
 
           <!-- Headline -->
@@ -29,7 +29,7 @@
               Naudotos<br>automobilių<br>dalys internetu iš
             </h1>
             <h1 class="text-4xl sm:text-5xl xl:text-6xl font-black text-brand-green leading-[1.05] tracking-tight mt-1">
-              Europos pardavėjų.
+              Patikimų pardavėjų.
             </h1>
           </div>
 
@@ -37,75 +37,24 @@
             Raskite originalias naudotas dalis iš patikimų pardavėjų visoje Europoje. Greitas pristatymas, saugi apmokėjimo sistema.
           </p>
 
-          <!-- Search wizard card -->
-          <div v-reveal="{ delay: 420, dir: 'scale' }" class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          <!-- Search widget -->
+          <div v-reveal="{ delay: 420, dir: 'scale' }" class="relative z-10">
+            <SearchWidget />
+          </div>
 
-            <div class="p-4 sm:p-5 space-y-3">
-
-              <!-- Vehicle search -->
-              <div class="relative">
-                  <svg class="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                  </svg>
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    :placeholder='activeType === "moto" ? "pvz. \"Honda CBR kapotas\"..." : activeType === "commercial" ? "pvz. \"Mercedes Sprinter durys\"..." : "pvz. \"BMW E60 kapotas\" arba OEM kodas..."'
-                    class="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 text-sm text-gray-900 placeholder-gray-400 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-all"
-                  >
-                </div>
-                <div class="flex items-center gap-3">
-                  <div class="flex-1 h-px bg-gray-100"></div>
-                  <span class="text-xs text-gray-400 font-medium whitespace-nowrap">arba filtruok</span>
-                  <div class="flex-1 h-px bg-gray-100"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-2 sm:gap-3">
-                  <div class="relative">
-                    <select v-model="make" @change="model = ''; generation = ''" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green transition-all appearance-none cursor-pointer pr-7">
-                      <option value="">{{ activeType === 'moto' ? 'Gamintojas...' : 'Markė...' }}</option>
-                      <template v-if="activeType === 'moto'">
-                        <option>Honda</option><option>Yamaha</option><option>Kawasaki</option><option>Suzuki</option><option>BMW</option><option>Ducati</option>
-                      </template>
-                      <template v-else-if="activeType === 'commercial'">
-                        <option>Mercedes-Benz</option><option>Volkswagen</option><option>Ford</option><option>Iveco</option><option>MAN</option><option>Volvo</option><option>DAF</option>
-                      </template>
-                      <template v-else>
-                        <option>BMW</option><option>Mercedes-Benz</option><option>Audi</option><option>Volkswagen</option><option>Volvo</option><option>Opel</option><option>Toyota</option><option>Honda</option>
-                      </template>
-                    </select>
-                    <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                  </div>
-                  <div class="relative">
-                    <select v-model="model" @change="generation = ''" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green transition-all appearance-none cursor-pointer pr-7">
-                      <option value="">Modelis...</option>
-                    </select>
-                    <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                  </div>
-                  <div class="relative">
-                    <select v-model="generation" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green transition-all appearance-none cursor-pointer pr-7">
-                      <option value="">Generacija...</option>
-                    </select>
-                    <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                  </div>
-                  <div class="relative">
-                    <select v-model="category" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green transition-all appearance-none cursor-pointer pr-7">
-                      <option value="">Kategorija...</option>
-                      <option>Variklio dalys</option><option>Transmisija</option><option>Stabdžiai</option><option>Žibintai</option>
-                    </select>
-                    <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                  </div>
-                </div>
-
-              <button
-                @click="goSearch"
-                class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 sm:py-4 rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 text-sm sm:text-base bg-brand-green hover:bg-brand-green-dark hover:shadow-green-200"
-              >
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                IEŠKOTI
-              </button>
-            </div>
+          <!-- VIN request link -->
+          <div v-reveal="{ delay: 500 }" class="relative z-0 flex items-center justify-center gap-2 mt-3">
+            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-xs text-gray-400">Nerandate reikiamos dalies?</span>
+            <NuxtLink
+              to="/vin-request"
+              class="text-xs font-semibold underline underline-offset-2 decoration-dashed transition-colors"
+              style="color: #14A34A;"
+            >
+              Siųskite VIN — ieškosime už jus
+            </NuxtLink>
           </div>
 
         </div>
@@ -122,13 +71,13 @@
             <!-- Lithuania pin -->
             <div class="absolute" style="left: 58%; top: 55%;">
               <div class="absolute pointer-events-none" style="left:-160px;top:-160px;width:320px;height:320px;">
-                <div class="absolute w-full h-full rounded-full border-2 border-green-300 opacity-40 animate-ping" style="animation-duration:3.5s;"></div>
+                <div class="absolute w-full h-full rounded-full border-2 border-green-400 opacity-70 animate-ping" style="animation-duration:3.5s;"></div>
               </div>
               <div class="absolute pointer-events-none" style="left:-110px;top:-110px;width:220px;height:220px;">
-                <div class="absolute w-full h-full rounded-full border border-green-400 opacity-30 animate-ping" style="animation-duration:2.8s;animation-delay:0.7s;"></div>
+                <div class="absolute w-full h-full rounded-full border-2 border-green-500 opacity-60 animate-ping" style="animation-duration:2.8s;animation-delay:0.7s;"></div>
               </div>
               <div class="absolute pointer-events-none" style="left:-65px;top:-65px;width:130px;height:130px;">
-                <div class="absolute w-full h-full rounded-full border border-green-500 opacity-20 animate-ping" style="animation-duration:2.1s;animation-delay:1.4s;"></div>
+                <div class="absolute w-full h-full rounded-full border-2 border-green-500 opacity-50 animate-ping" style="animation-duration:2.1s;animation-delay:1.4s;"></div>
               </div>
               <button
                 @click="navigateTo('/catalog')"
@@ -141,9 +90,12 @@
               </button>
             </div>
             <!-- Live activity badge -->
-            <div class="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-full px-2.5 py-1 shadow-sm">
-              <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-              <span class="text-[10px] font-bold text-gray-700 uppercase tracking-wide">Gyvas</span>
+            <div class="absolute top-4 right-4 z-20 flex items-center gap-2 bg-white/95 backdrop-blur-sm border border-gray-100 rounded-full px-3 py-1.5 shadow-md">
+              <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+              </span>
+              <span class="text-[11px] font-bold text-gray-700 uppercase tracking-wide">Gyvas</span>
             </div>
 
             <!-- Animated sale notifications -->
@@ -233,34 +185,13 @@
     </div>
 
   </section>
+
+  <SearchModal v-model="searchModalOpen" :initial-query="searchQuery" />
 </template>
 
 <script setup lang="ts">
-const searchQuery = ref('')
-const oemCode = ref('')
 const searchModalOpen = ref(false)
-const activeType = ref('car')
-
-// Wizard selects
-const make = ref('')
-const model = ref('')
-const generation = ref('')
-const category = ref('')
-
-function goSearch() {
-  const params: Record<string, string> = {}
-  if (activeType.value === 'oem') {
-    if (oemCode.value) params.q = oemCode.value
-    else if (searchQuery.value) params.q = searchQuery.value
-  } else {
-    if (searchQuery.value) params.q = searchQuery.value
-    if (make.value) params.make = make.value
-    if (model.value) params.model = model.value
-    if (generation.value) params.generation = generation.value
-    if (category.value) params.category = category.value
-  }
-  navigateTo({ path: '/catalog', query: params })
-}
+const searchQuery = ref('')
 
 const vehicleTypes = [
   { id: 'car',        icon: '🚗',  label: 'Automobilis',  color: '#16a34a' },

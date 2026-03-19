@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ modelValue: boolean }>()
+const props = defineProps<{ modelValue: boolean; initialQuery?: string }>()
 const emit = defineEmits(['update:modelValue'])
 
 const query = ref('')
@@ -126,6 +126,7 @@ const inputRef = ref<HTMLInputElement>()
 
 watch(() => props.modelValue, (val) => {
   if (val) {
+    query.value = props.initialQuery ?? ''
     nextTick(() => inputRef.value?.focus())
     document.body.style.overflow = 'hidden'
   } else {
@@ -139,6 +140,7 @@ onUnmounted(() => {
 
 function search() {
   emit('update:modelValue', false)
+  navigateTo({ path: '/catalog', query: query.value ? { q: query.value } : {} })
 }
 </script>
 
