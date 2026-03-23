@@ -54,6 +54,14 @@
           <span class="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:#14A34A; color:#fff;">12</span>
         </NuxtLink>
 
+        <NuxtLink to="/supplier/orders" class="nav-item" :class="$route.path.startsWith('/supplier/orders') ? 'nav-active' : ''">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+          </svg>
+          <span>Užsakymai</span>
+          <span class="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:#F0FDF4; color:#14A34A;">8</span>
+        </NuxtLink>
+
         <NuxtLink to="/supplier/catalog" class="nav-item" :class="$route.path.startsWith('/supplier/catalog') ? 'nav-active' : ''">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
