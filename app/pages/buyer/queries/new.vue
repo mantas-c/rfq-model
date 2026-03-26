@@ -721,12 +721,26 @@ const analysisProgress  = ref(0)
 const analysisStatusMsg = ref('Įkeliamos nuotraukos...')
 const statusMessages    = ['Įkeliamos nuotraukos...', 'Analizuojami pažeidimai...', 'Aptinkamos pažeistos dalys...', 'Ruošiamas atsakymas...']
 
-async function fileToBase64(file: File): Promise<string> {
+// Resize image to max 1200px on longest side, JPEG 85% — keeps payload well under server limits
+async function resizeImage(file: File, maxPx = 1200, quality = 0.85): Promise<string> {
   return new Promise((res, rej) => {
-    const r = new FileReader()
-    r.onload  = () => res(r.result as string)
-    r.onerror = rej
-    r.readAsDataURL(file)
+    const reader = new FileReader()
+    reader.onerror = rej
+    reader.onload = () => {
+      const img = new Image()
+      img.onerror = rej
+      img.onload = () => {
+        const scale = Math.min(1, maxPx / Math.max(img.width, img.height))
+        const canvas = document.createElement('canvas')
+        canvas.width  = Math.round(img.width  * scale)
+        canvas.height = Math.round(img.height * scale)
+        const ctx = canvas.getContext('2d')!
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        res(canvas.toDataURL('image/jpeg', quality))
+      }
+      img.src = reader.result as string
+    }
+    reader.readAsDataURL(file)
   })
 }
 
@@ -734,7 +748,7 @@ async function addFiles(files: FileList | File[]) {
   const arr = Array.from(files).slice(0, 4 - uploadedImages.value.length)
   for (const file of arr) {
     if (!file.type.startsWith('image/')) continue
-    const base64 = await fileToBase64(file)
+    const base64 = await resizeImage(file)
     uploadedImages.value.push({ file, preview: base64, name: file.name, base64 })
   }
 }

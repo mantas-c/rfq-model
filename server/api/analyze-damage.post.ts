@@ -69,49 +69,25 @@ export default defineEventHandler(async (event) => {
   if (!process.env.ANTHROPIC_API_KEY) {
     await new Promise(r => setTimeout(r, 2200))
 
-    // Rotate mock results so different uploads feel different
-    const mockSets = [
-      {
-        damaged_parts: ['front_bumper', 'lf_fender', 'lh_light', 'hood', 'lf_door'],
-        severity: 'major',
-        confidence: 0.94,
-        description: 'Stiprus priekinis smūgis: pažeistas priekinis buferis, kairės pusės sparnas, žibintas, variklio dangtis ir kairės pusės priekinės durys.',
-        damage_notes: {
-          front_bumper: 'Heavy impact, cracked and deformed',
-          lf_fender:    'Large dent, paint scraped',
-          lh_light:     'Broken housing, glass intact',
-          hood:         'Crumple zone dent ~25cm',
-          lf_door:      'Minor dent from secondary impact',
-        },
+    // BMW severe front-end collision mock (matches demo test image)
+    return {
+      damaged_parts: ['front_bumper', 'hood', 'hood_front', 'lh_light', 'rh_light', 'lf_fender', 'rf_fender', 'lf_wing', 'rf_wing', 'front_grille'],
+      severity: 'major',
+      confidence: 0.97,
+      description: 'Katastrofiškas priekinis smūgis: visiškai sunaikintas priekinis buferis, groteles ir abu žibintai; stipriai deformuotas variklio dangtis ir abu priekiniai sparnai.',
+      damage_notes: {
+        front_bumper: 'Completely destroyed, missing large sections',
+        hood:         'Severely crumpled, folded back toward windshield',
+        hood_front:   'Front edge buckled upward, structure compromised',
+        lh_light:     'Assembly destroyed, mounting points torn out',
+        rh_light:     'Assembly destroyed, mounting points torn out',
+        lf_fender:    'Bent outward, paint stripped, structural damage',
+        rf_fender:    'Bent outward, paint stripped, structural damage',
+        lf_wing:      'Flared and crumpled at impact zone',
+        rf_wing:      'Flared and crumpled at impact zone',
+        front_grille: 'Completely missing, radiator fully exposed',
       },
-      {
-        damaged_parts: ['rear_bumper', 'trunk', 'rt_light', 'lt_light', 'rr_quarter'],
-        severity: 'medium',
-        confidence: 0.88,
-        description: 'Galinis smūgis: pažeistas galinis buferis, bagažinė ir abu galiniai žibintai.',
-        damage_notes: {
-          rear_bumper: 'Cracked and pushed in',
-          trunk:       'Dented, doesn\'t close properly',
-          rt_light:    'Cracked lens',
-          lt_light:    'Cracked lens',
-          rr_quarter:  'Minor scrape',
-        },
-      },
-      {
-        damaged_parts: ['lf_door', 'lr_door', 'left_mirror', 'lr_quarter'],
-        severity: 'medium',
-        confidence: 0.91,
-        description: 'Šoninis smūgis kairėje pusėje: pažeistos abi kairės durys, veidrodis ir galinis sparnas.',
-        damage_notes: {
-          lf_door:     'Large dent in door panel',
-          lr_door:     'Dent and paint damage',
-          left_mirror: 'Mirror housing broken off',
-          lr_quarter:  'Minor scrape and dent',
-        },
-      },
-    ]
-
-    return mockSets[images.length % mockSets.length]
+    }
   }
 
   // ── Real Claude API call ──────────────────────────────────
