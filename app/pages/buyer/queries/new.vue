@@ -573,87 +573,106 @@
         </div>
       </div>
 
-      <!-- Parts + offer cards scroll -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4">
-        <div v-for="pd in partDetails" :key="pd.id" class="rounded-2xl overflow-hidden" style="background:#fff; border:1px solid #E2E8F0;">
+      <!-- Accordion list -->
+      <div class="flex-1 overflow-y-auto py-2">
+        <div v-for="(pd, idx) in partDetails" :key="pd.id"
+          class="border-b" style="border-color:#F1F5F9;">
 
-          <!-- Part header -->
-          <div class="flex items-center gap-2.5 px-4 py-3" style="background:#FAFAFA; border-bottom:1px solid #F1F5F9;">
+          <!-- Summary row (always visible) -->
+          <div class="flex items-center gap-2.5 px-4 py-3 cursor-pointer select-none accordion-row"
+            :style="expandedPartId===pd.id ? 'background:#F8FAFC;' : 'background:#fff;'"
+            @click="expandedPartId = expandedPartId===pd.id ? null : pd.id">
+
+            <!-- Severity dot -->
             <div class="w-2 h-2 rounded-full flex-shrink-0"
               :style="pd.severity==='major' ? 'background:#EF4444;' : pd.severity==='medium' ? 'background:#F59E0B;' : 'background:#22C55E;'"></div>
-            <p class="text-sm font-bold flex-1" style="color:#0F172A;">{{ pd.label }}</p>
-            <span v-if="aiIds.has(pd.id)" class="text-[9px] font-bold px-1.5 py-0.5 rounded" style="background:#EEF2FF; color:#6366F1;">AI</span>
-            <span class="text-[11px]" style="color:#94A3B8;">{{ (partOffers[pd.id]??[]).length }} pasiūl.</span>
-            <span v-if="selectedOffers[pd.id]" class="w-5 h-5 rounded-full flex items-center justify-center ml-1 flex-shrink-0" style="background:#DCFCE7; border:1px solid #86EFAC;">
-              <svg class="w-3 h-3" style="color:#14A34A;" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+
+            <!-- Part name + AI -->
+            <div class="flex items-center gap-1.5 min-w-0" style="flex:1 1 110px;">
+              <p class="text-sm font-semibold truncate" style="color:#0F172A;">{{ pd.label }}</p>
+              <span v-if="aiIds.has(pd.id)" class="text-[8px] font-bold px-1 py-0.5 rounded flex-shrink-0" style="background:#EEF2FF; color:#6366F1;">AI</span>
+            </div>
+
+            <!-- Price range -->
+            <span class="text-xs font-semibold flex-shrink-0" style="color:#0F172A; min-width:68px; text-align:right;">
+              €{{ Math.min(...(partOffers[pd.id]??[]).map(o=>o.price)) }}–{{ Math.max(...(partOffers[pd.id]??[]).map(o=>o.price)) }}
             </span>
+
+            <!-- Seller count -->
+            <span class="text-[11px] flex-shrink-0 hidden sm:block" style="color:#64748B; min-width:44px; text-align:center;">
+              {{ (partOffers[pd.id]??[]).length }} tiek.
+            </span>
+
+            <!-- Selected offer badge -->
+            <div class="flex items-center gap-1 flex-shrink-0" style="min-width:64px; justify-content:flex-end;">
+              <template v-if="selectedOffers[pd.id]">
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded" :style="conditionStyle((partOffers[pd.id]??[]).find(o=>o.id===selectedOffers[pd.id])?.condition??'oem')">
+                  {{ (partOffers[pd.id]??[]).find(o=>o.id===selectedOffers[pd.id])?.conditionLt }}
+                </span>
+                <span class="text-xs font-black" style="color:#14A34A;">€{{ (partOffers[pd.id]??[]).find(o=>o.id===selectedOffers[pd.id])?.price }}</span>
+              </template>
+              <template v-else>
+                <span class="text-[10px]" style="color:#CBD5E1;">—</span>
+              </template>
+            </div>
+
+            <!-- Chevron -->
+            <svg class="w-4 h-4 flex-shrink-0 transition-transform duration-200" :style="expandedPartId===pd.id ? 'color:#3B82F6; transform:rotate(180deg);' : 'color:#CBD5E1;'"
+              fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
           </div>
 
-          <!-- 2-column offer grid -->
-          <div class="p-3 grid grid-cols-2 gap-2.5">
+          <!-- Expanded offer rows -->
+          <div v-if="expandedPartId===pd.id" style="background:#FAFAFA; border-top:1px solid #F1F5F9;">
+
+            <!-- Column headers -->
+            <div class="flex items-center gap-2 px-4 py-1.5" style="border-bottom:1px solid #F1F5F9;">
+              <span class="text-[9px] font-bold uppercase tracking-wide" style="color:#94A3B8; flex:0 0 88px;">Tipas</span>
+              <span class="text-[9px] font-bold uppercase tracking-wide flex-1" style="color:#94A3B8;">Tiekėjas</span>
+              <span class="text-[9px] font-bold uppercase tracking-wide" style="color:#94A3B8; width:52px; text-align:right;">Kaina</span>
+              <span class="text-[9px] font-bold uppercase tracking-wide" style="color:#94A3B8; width:40px; text-align:center;">Pristat.</span>
+              <span class="text-[9px] font-bold uppercase tracking-wide" style="color:#94A3B8; width:64px; text-align:center;">Sandėlis</span>
+              <span style="width:40px;"></span>
+            </div>
+
+            <!-- One row per offer -->
             <div v-for="offer in (partOffers[pd.id]??[])" :key="offer.id"
-              class="offer-card relative rounded-xl overflow-hidden cursor-pointer transition-all"
-              :style="`border:1.5px solid ${selectedOffers[pd.id]===offer.id ? '#14A34A' : hoveredOfferId===offer.id ? '#94A3B8' : '#E2E8F0'}; background:${selectedOffers[pd.id]===offer.id ? '#F0FDF4' : '#F8FAFC'};`"
-              @mouseenter="hoveredOfferId=offer.id" @mouseleave="hoveredOfferId=null"
+              class="offer-row flex items-center gap-2 px-4 py-2.5 cursor-pointer transition-colors"
+              :style="selectedOffers[pd.id]===offer.id ? 'background:#F0FDF4;' : 'background:transparent;'"
               @click="selectOffer(pd.id, offer.id)">
 
-              <!-- Photo strip -->
-              <div class="relative flex items-end gap-1.5 px-2.5 pt-2 pb-2" :style="`background:${offer.cardBg}; min-height:58px;`">
-                <!-- Recommended badge -->
-                <div v-if="offer.recommended" class="absolute top-1.5 left-2 text-[8px] font-bold px-1.5 py-0.5 rounded-full"
-                  style="background:rgba(255,255,255,0.25); color:#fff; backdrop-filter:blur(4px); white-space:nowrap;">★ rekomenduojama</div>
-                <!-- Selected tick -->
-                <div v-if="selectedOffers[pd.id]===offer.id" class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center" style="background:#14A34A; border:1.5px solid #fff;">
-                  <svg class="w-2.5 h-2.5" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <!-- Condition badge -->
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" :style="conditionStyle(offer.condition)" style="flex:0 0 88px; text-align:center; display:block;">{{ offer.conditionLt }}</span>
+
+              <!-- Supplier + donor mileage -->
+              <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                <div class="w-5 h-5 rounded flex items-center justify-center text-[8px] font-bold flex-shrink-0" style="background:#1E293B; color:#fff;">{{ offer.supplierInitials }}</div>
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold truncate" style="color:#0F172A;">{{ offer.supplierName }}</p>
+                  <p v-if="offer.donorVehicle" class="text-[9px] truncate" style="color:#94A3B8;">{{ offer.donorVehicle.model }} · {{ Math.round(offer.donorVehicle.mileage/1000) }}k km · {{ offer.donorVehicle.colorName }}</p>
+                  <p v-else class="text-[9px]" style="color:#94A3B8;">★ {{ offer.supplierRating }} · {{ offer.supplierReviews }} atsiliepimai</p>
                 </div>
-                <!-- Used: donor info -->
-                <template v-if="offer.donorVehicle">
-                  <svg class="w-5 h-5 flex-shrink-0 opacity-70" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
-                  <div>
-                    <p class="text-[9px] font-bold leading-tight" style="color:rgba(255,255,255,0.95);">{{ offer.donorVehicle.model }}</p>
-                    <p class="text-[8px] leading-tight" style="color:rgba(255,255,255,0.6);">{{ offer.donorVehicle.year }} · {{ Math.round(offer.donorVehicle.mileage/1000) }}k km</p>
-                  </div>
-                </template>
-                <!-- OEM -->
-                <template v-else-if="offer.condition==='oem'">
-                  <svg class="w-5 h-5 flex-shrink-0 opacity-70" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                  <p class="text-[9px] font-bold" style="color:rgba(255,255,255,0.9);">BMW AG · Originalas</p>
-                </template>
-                <!-- Aftermarket -->
-                <template v-else-if="offer.condition==='aftermarket'">
-                  <svg class="w-5 h-5 flex-shrink-0 opacity-70" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                  <p class="text-[9px] font-bold" style="color:rgba(255,255,255,0.9);">CE Sertifikuota</p>
-                </template>
-                <!-- Refurbished -->
-                <template v-else>
-                  <svg class="w-5 h-5 flex-shrink-0 opacity-70" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                  <p class="text-[9px] font-bold" style="color:rgba(255,255,255,0.9);">Prof. renovuota</p>
-                </template>
               </div>
 
-              <!-- Card body -->
-              <div class="p-2.5">
-                <!-- Supplier -->
-                <div class="flex items-center gap-1.5 mb-1.5">
-                  <div class="w-5 h-5 rounded flex items-center justify-center text-[8px] font-bold flex-shrink-0" style="background:#1E293B; color:#fff;">{{ offer.supplierInitials }}</div>
-                  <span class="text-[10px] font-semibold" style="color:#0F172A; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:90px;">{{ offer.supplierName }}</span>
-                </div>
-                <!-- Condition -->
-                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded mb-1.5" :style="conditionStyle(offer.condition)">{{ offer.conditionLt }}</span>
-                <!-- Price -->
-                <p class="text-base font-black mb-1" style="color:#0F172A; line-height:1.1;">€{{ offer.price }}</p>
-                <!-- Delivery + stock -->
-                <div class="flex items-center gap-1 mb-1.5">
-                  <span class="text-[9px]" style="color:#64748B;">{{ offer.delivery }}d.d.</span>
-                  <span class="text-[9px] font-semibold px-1 py-0.5 rounded"
-                    :style="offer.stock==='in_stock' ? 'background:#F0FDF4; color:#14A34A;' : offer.stock==='low_stock' ? 'background:#FFFBEB; color:#D97706;' : 'background:#F1F5F9; color:#64748B;'">
-                    {{ offer.stock==='in_stock' ? '✓ Sandėlyje' : offer.stock==='low_stock' ? '⚠ Mažai' : '↻ Užsakoma' }}
-                  </span>
-                </div>
-                <!-- Rating + view link -->
-                <div class="flex items-center justify-between pt-1.5" style="border-top:1px solid #F1F5F9;">
-                  <span class="text-[10px]" style="color:#F59E0B;">★ {{ offer.supplierRating }}</span>
-                  <button @click.stop="openOffer(offer, pd.id)" class="text-[10px] font-semibold cursor-pointer" style="color:#3B82F6;">Daugiau →</button>
+              <!-- Price -->
+              <span class="text-sm font-black flex-shrink-0" :style="selectedOffers[pd.id]===offer.id ? 'color:#14A34A;' : 'color:#0F172A;'" style="width:52px; text-align:right;">€{{ offer.price }}</span>
+
+              <!-- Delivery -->
+              <span class="text-[10px] flex-shrink-0" style="color:#64748B; width:40px; text-align:center;">{{ offer.delivery }}d.d.</span>
+
+              <!-- Stock -->
+              <span class="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0" style="width:64px; text-align:center;"
+                :style="offer.stock==='in_stock' ? 'background:#F0FDF4; color:#14A34A;' : offer.stock==='low_stock' ? 'background:#FFFBEB; color:#D97706;' : 'background:#F1F5F9; color:#64748B;'">
+                {{ offer.stock==='in_stock' ? '✓ Yra' : offer.stock==='low_stock' ? '⚠ Mažai' : '↻ Užsak.' }}
+              </span>
+
+              <!-- Detail link + radio -->
+              <div class="flex items-center gap-2 flex-shrink-0" style="width:40px; justify-content:flex-end;">
+                <button @click.stop="openOffer(offer, pd.id)" class="text-[10px] cursor-pointer transition-colors" style="color:#3B82F6;" title="Daugiau informacijos">↗</button>
+                <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                  :style="selectedOffers[pd.id]===offer.id ? 'border-color:#14A34A; background:#14A34A;' : 'border-color:#CBD5E1; background:#fff;'">
+                  <div v-if="selectedOffers[pd.id]===offer.id" class="w-1.5 h-1.5 rounded-full" style="background:#fff;"></div>
                 </div>
               </div>
             </div>
@@ -1209,6 +1228,7 @@ const selectedOffers = ref<Record<string,string>>({})
 const viewingOffer   = ref<Offer|null>(null)
 const viewingPartId  = ref<string|null>(null)
 const hoveredOfferId = ref<string|null>(null)
+const expandedPartId = ref<string|null>(null)
 const selectedOfferCount = computed(() => Object.keys(selectedOffers.value).length)
 const totalPrice = computed(() => {
   let sum = 0
@@ -1258,4 +1278,6 @@ function resetWizard() {
 .animate-spin-slow { animation: spin-slow 2s linear infinite; }
 .offer-card { transition: box-shadow 0.15s ease; }
 .offer-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+.accordion-row:hover { background: #F8FAFC !important; }
+.offer-row:hover { background: #F8FAFC !important; }
 </style>
