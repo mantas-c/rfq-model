@@ -592,45 +592,69 @@
           <!-- 2-column offer grid -->
           <div class="p-3 grid grid-cols-2 gap-2.5">
             <div v-for="offer in (partOffers[pd.id]??[])" :key="offer.id"
-              class="offer-card relative rounded-xl p-3 cursor-pointer transition-all"
+              class="offer-card relative rounded-xl overflow-hidden cursor-pointer transition-all"
               :style="`border:1.5px solid ${selectedOffers[pd.id]===offer.id ? '#14A34A' : hoveredOfferId===offer.id ? '#94A3B8' : '#E2E8F0'}; background:${selectedOffers[pd.id]===offer.id ? '#F0FDF4' : '#F8FAFC'};`"
               @mouseenter="hoveredOfferId=offer.id" @mouseleave="hoveredOfferId=null"
               @click="selectOffer(pd.id, offer.id)">
 
-              <!-- Recommended badge -->
-              <div v-if="offer.recommended" class="absolute -top-2.5 left-2.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                style="background:#3B82F6; color:#fff; white-space:nowrap;">★ rekomenduojama</div>
-
-              <!-- Selected tick -->
-              <div v-if="selectedOffers[pd.id]===offer.id" class="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center" style="background:#14A34A;">
-                <svg class="w-2.5 h-2.5" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <!-- Photo strip -->
+              <div class="relative flex items-end gap-1.5 px-2.5 pt-2 pb-2" :style="`background:${offer.cardBg}; min-height:58px;`">
+                <!-- Recommended badge -->
+                <div v-if="offer.recommended" class="absolute top-1.5 left-2 text-[8px] font-bold px-1.5 py-0.5 rounded-full"
+                  style="background:rgba(255,255,255,0.25); color:#fff; backdrop-filter:blur(4px); white-space:nowrap;">★ rekomenduojama</div>
+                <!-- Selected tick -->
+                <div v-if="selectedOffers[pd.id]===offer.id" class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center" style="background:#14A34A; border:1.5px solid #fff;">
+                  <svg class="w-2.5 h-2.5" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <!-- Used: donor info -->
+                <template v-if="offer.donorVehicle">
+                  <svg class="w-5 h-5 flex-shrink-0 opacity-70" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
+                  <div>
+                    <p class="text-[9px] font-bold leading-tight" style="color:rgba(255,255,255,0.95);">{{ offer.donorVehicle.model }}</p>
+                    <p class="text-[8px] leading-tight" style="color:rgba(255,255,255,0.6);">{{ offer.donorVehicle.year }} · {{ Math.round(offer.donorVehicle.mileage/1000) }}k km</p>
+                  </div>
+                </template>
+                <!-- OEM -->
+                <template v-else-if="offer.condition==='oem'">
+                  <svg class="w-5 h-5 flex-shrink-0 opacity-70" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                  <p class="text-[9px] font-bold" style="color:rgba(255,255,255,0.9);">BMW AG · Originalas</p>
+                </template>
+                <!-- Aftermarket -->
+                <template v-else-if="offer.condition==='aftermarket'">
+                  <svg class="w-5 h-5 flex-shrink-0 opacity-70" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  <p class="text-[9px] font-bold" style="color:rgba(255,255,255,0.9);">CE Sertifikuota</p>
+                </template>
+                <!-- Refurbished -->
+                <template v-else>
+                  <svg class="w-5 h-5 flex-shrink-0 opacity-70" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  <p class="text-[9px] font-bold" style="color:rgba(255,255,255,0.9);">Prof. renovuota</p>
+                </template>
               </div>
 
-              <!-- Supplier -->
-              <div class="flex items-center gap-1.5 mb-2">
-                <div class="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-bold flex-shrink-0" style="background:#1E293B; color:#fff;">{{ offer.supplierInitials }}</div>
-                <span class="text-[10px] font-semibold" style="color:#0F172A; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:90px;">{{ offer.supplierName }}</span>
-              </div>
-
-              <!-- Condition -->
-              <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded mb-2" :style="conditionStyle(offer.condition)">{{ offer.conditionLt }}</span>
-
-              <!-- Price -->
-              <p class="text-base font-black mb-1.5" style="color:#0F172A; line-height:1.1;">€{{ offer.price }}</p>
-
-              <!-- Delivery + stock -->
-              <div class="flex items-center gap-1 mb-2">
-                <span class="text-[9px]" style="color:#64748B;">{{ offer.delivery }}d.d.</span>
-                <span class="text-[9px] font-semibold px-1 py-0.5 rounded"
-                  :style="offer.stock==='in_stock' ? 'background:#F0FDF4; color:#14A34A;' : offer.stock==='low_stock' ? 'background:#FFFBEB; color:#D97706;' : 'background:#F1F5F9; color:#64748B;'">
-                  {{ offer.stock==='in_stock' ? '✓ Sandėlyje' : offer.stock==='low_stock' ? '⚠ Mažai' : '↻ Užsakoma' }}
-                </span>
-              </div>
-
-              <!-- Rating + view link -->
-              <div class="flex items-center justify-between pt-2" style="border-top:1px solid #F1F5F9;">
-                <span class="text-[10px]" style="color:#F59E0B;">★ {{ offer.supplierRating }}</span>
-                <button @click.stop="openOffer(offer, pd.id)" class="text-[10px] font-semibold cursor-pointer" style="color:#3B82F6;">Daugiau →</button>
+              <!-- Card body -->
+              <div class="p-2.5">
+                <!-- Supplier -->
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <div class="w-5 h-5 rounded flex items-center justify-center text-[8px] font-bold flex-shrink-0" style="background:#1E293B; color:#fff;">{{ offer.supplierInitials }}</div>
+                  <span class="text-[10px] font-semibold" style="color:#0F172A; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:90px;">{{ offer.supplierName }}</span>
+                </div>
+                <!-- Condition -->
+                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded mb-1.5" :style="conditionStyle(offer.condition)">{{ offer.conditionLt }}</span>
+                <!-- Price -->
+                <p class="text-base font-black mb-1" style="color:#0F172A; line-height:1.1;">€{{ offer.price }}</p>
+                <!-- Delivery + stock -->
+                <div class="flex items-center gap-1 mb-1.5">
+                  <span class="text-[9px]" style="color:#64748B;">{{ offer.delivery }}d.d.</span>
+                  <span class="text-[9px] font-semibold px-1 py-0.5 rounded"
+                    :style="offer.stock==='in_stock' ? 'background:#F0FDF4; color:#14A34A;' : offer.stock==='low_stock' ? 'background:#FFFBEB; color:#D97706;' : 'background:#F1F5F9; color:#64748B;'">
+                    {{ offer.stock==='in_stock' ? '✓ Sandėlyje' : offer.stock==='low_stock' ? '⚠ Mažai' : '↻ Užsakoma' }}
+                  </span>
+                </div>
+                <!-- Rating + view link -->
+                <div class="flex items-center justify-between pt-1.5" style="border-top:1px solid #F1F5F9;">
+                  <span class="text-[10px]" style="color:#F59E0B;">★ {{ offer.supplierRating }}</span>
+                  <button @click.stop="openOffer(offer, pd.id)" class="text-[10px] font-semibold cursor-pointer" style="color:#3B82F6;">Daugiau →</button>
+                </div>
               </div>
             </div>
           </div>
@@ -708,8 +732,55 @@
           <button @click="viewingOffer = null" class="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer flex-shrink-0" style="background:rgba(255,255,255,0.08); color:#94A3B8; font-size:15px; line-height:1;">✕</button>
         </div>
 
+        <!-- Donor vehicle card (used parts) -->
+        <div v-if="viewingOffer.donorVehicle" class="mx-5 mt-4 rounded-xl overflow-hidden" style="border:1px solid #E2E8F0;">
+          <div class="px-4 py-3 flex items-center gap-3" :style="`background:${viewingOffer.cardBg};`">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.15);">
+              <svg class="w-5 h-5" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-bold text-white truncate">{{ viewingOffer.donorVehicle.make }} {{ viewingOffer.donorVehicle.model }}</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-[11px]" style="color:rgba(255,255,255,0.7);">{{ viewingOffer.donorVehicle.year }}</span>
+                <span style="color:rgba(255,255,255,0.3);">·</span>
+                <span class="text-[11px] font-semibold" style="color:rgba(255,255,255,0.85);">{{ viewingOffer.donorVehicle.mileage.toLocaleString() }} km</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              <div class="w-3.5 h-3.5 rounded-full border-2" :style="`background:${viewingOffer.donorVehicle.colorHex}; border-color:rgba(255,255,255,0.4);`"></div>
+              <span class="text-[10px]" style="color:rgba(255,255,255,0.65);">{{ viewingOffer.donorVehicle.colorName }}</span>
+            </div>
+          </div>
+          <!-- VIN + photos row -->
+          <div class="px-4 py-2.5 flex items-center justify-between" style="background:#FAFAFA; border-top:1px solid #F1F5F9;">
+            <span class="text-[10px] font-mono" style="color:#94A3B8;">VIN: {{ viewingOffer.donorVehicle.vin }}</span>
+          </div>
+          <!-- Part + car photo placeholders -->
+          <div class="grid grid-cols-2 gap-2 p-3" style="background:#FAFAFA; border-top:1px solid #F1F5F9;">
+            <div class="rounded-lg flex flex-col items-center justify-center gap-1.5 py-4" style="background:#F1F5F9; border:1.5px dashed #CBD5E1;">
+              <svg class="w-6 h-6" style="color:#94A3B8;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <p class="text-[9px] font-semibold" style="color:#94A3B8;">Donoro auto</p>
+            </div>
+            <div class="rounded-lg flex flex-col items-center justify-center gap-1.5 py-4" style="background:#F1F5F9; border:1.5px dashed #CBD5E1;">
+              <svg class="w-6 h-6" style="color:#94A3B8;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <p class="text-[9px] font-semibold" style="color:#94A3B8;">Dalies nuotr.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Non-used: product visual -->
+        <div v-else class="mx-5 mt-4 rounded-xl flex items-center gap-3 px-4 py-3" :style="`background:${viewingOffer.cardBg};`">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.15);">
+            <svg class="w-5 h-5" fill="none" stroke="white" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-white">{{ viewingOffer.conditionLt }}</p>
+            <p class="text-[11px] font-mono mt-0.5" style="color:rgba(255,255,255,0.55);">{{ viewingOffer.partNumber }}</p>
+          </div>
+        </div>
+
         <div class="p-5 space-y-4">
-          <!-- Condition + part number -->
+          <!-- Condition + part number (used: show mileage instead of part no in header) -->
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold px-2.5 py-1 rounded-lg" :style="conditionStyle(viewingOffer.condition)">{{ viewingOffer.conditionLt }}</span>
             <span class="text-xs font-mono" style="color:#94A3B8;">{{ viewingOffer.partNumber }}</span>
@@ -1057,6 +1128,10 @@ function severityLt(s: string) {
 }
 
 // ── Step 4: Automatic Offers ─────────────────────────────────
+interface DonorVehicle {
+  make: string; model: string; year: number; mileage: number
+  colorName: string; colorHex: string; vin: string
+}
 interface Offer {
   id: string; supplierName: string; supplierInitials: string
   supplierRating: number; supplierReviews: number
@@ -1064,12 +1139,22 @@ interface Offer {
   price: number; delivery: number; partNumber: string
   warranty: string; stock: 'in_stock'|'low_stock'|'order'
   recommended: boolean; description: string; location: string
+  cardBg: string
+  donorVehicle?: DonorVehicle
 }
 const OFFER_SUPPLIERS = [
   { initials:'BM', name:'BMW AG Center',    rating:4.9, reviews:234,  location:'Vilnius, Laisvės pr. 28' },
   { initials:'AD', name:'AutoDalys24.lt',   rating:4.6, reviews:1042, location:'Kaunas, Pramonės pr. 14' },
   { initials:'EC', name:'EuroCarParts.eu',  rating:4.4, reviews:876,  location:'Ryga, LV (2–3 d.d.)' },
   { initials:'BA', name:'BalticAuto Parts', rating:4.3, reviews:512,  location:'Vilnius, Savanorių pr. 7' },
+]
+const DONOR_VEHICLES: DonorVehicle[] = [
+  { make:'BMW', model:'3 Series 320i E90', year:2008, mileage:187400, colorName:'Schwarz Metallic', colorHex:'#1a1a2e', vin:'WBA90A010XG123456' },
+  { make:'BMW', model:'3 Series 318d E90', year:2009, mileage:214000, colorName:'Silber Metallic',  colorHex:'#6b7280', vin:'WBA90B0908H234567' },
+  { make:'BMW', model:'3 Series 325i E92', year:2010, mileage:156800, colorName:'Alpinweiß',        colorHex:'#d1d5db', vin:'WBA92C010XA345678' },
+  { make:'BMW', model:'3 Series 330d E92', year:2007, mileage:298500, colorName:'Blau Metallic',    colorHex:'#1e3a8a', vin:'WBA92D0907B456789' },
+  { make:'BMW', model:'3 Series 320d E90', year:2011, mileage:143200, colorName:'Titansilber',      colorHex:'#4b5563', vin:'WBA90E0811C567890' },
+  { make:'BMW', model:'3 Series 335i E92', year:2008, mileage:178900, colorName:'Spacegrau',        colorHex:'#374151', vin:'WBA92F0808D678901' },
 ]
 // Prices: [OEM, used, aftermarket, refurbished] — 0 = not available
 const OFFER_PRICES: Record<string, [number,number,number,number]> = {
@@ -1086,11 +1171,14 @@ const OFFER_PRICES: Record<string, [number,number,number,number]> = {
 }
 function generateOffersForPart(partId: string, severity: string): Offer[] {
   const prices = OFFER_PRICES[partId] ?? [400,110,165,90] as [number,number,number,number]
+  // Pick a consistent donor vehicle per part
+  const donorIdx = partId.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % DONOR_VEHICLES.length
+  const donor = DONOR_VEHICLES[donorIdx]
   const specs = [
-    { cond:'oem'          as const, lt:'Originalas (OEM)', supIdx:0, del:3, warranty:'24 mėn.', stock:'in_stock'  as const },
-    { cond:'used'         as const, lt:'Naudota',          supIdx:1, del:1, warranty:'6 mėn.',  stock:(severity==='major' ? 'low_stock' : 'in_stock') as 'in_stock'|'low_stock' },
-    { cond:'aftermarket'  as const, lt:'Analogas',         supIdx:2, del:5, warranty:'12 mėn.', stock:'in_stock'  as const },
-    { cond:'refurbished'  as const, lt:'Renovuota',        supIdx:3, del:7, warranty:'12 mėn.', stock:'order'     as const },
+    { cond:'oem'         as const, lt:'Originalas (OEM)', supIdx:0, del:3, warranty:'24 mėn.', stock:'in_stock'  as const, bg:'linear-gradient(135deg,#1e3a8a,#2563eb)' },
+    { cond:'used'        as const, lt:'Naudota',          supIdx:1, del:1, warranty:'6 mėn.',  stock:(severity==='major'?'low_stock':'in_stock') as 'in_stock'|'low_stock', bg:`linear-gradient(135deg,${donor.colorHex}ee,${donor.colorHex}99)` },
+    { cond:'aftermarket' as const, lt:'Analogas',         supIdx:2, del:5, warranty:'12 mėn.', stock:'in_stock'  as const, bg:'linear-gradient(135deg,#14532d,#166534)' },
+    { cond:'refurbished' as const, lt:'Renovuota',        supIdx:3, del:7, warranty:'12 mėn.', stock:'order'     as const, bg:'linear-gradient(135deg,#3b0764,#6d28d9)' },
   ]
   const descMap: Record<string,string> = {
     oem:         'Originali BMW gamyklinė dalis. Garantuota kokybė ir tikslus tinkamumas su automobilio VIN kodu.',
@@ -1099,7 +1187,7 @@ function generateOffersForPart(partId: string, severity: string): Offer[] {
     refurbished: 'Profesionaliai renovuota dalis su pilna mechaninių darbų garantija.',
   }
   const offers: Offer[] = []
-  specs.forEach(({ cond, lt, supIdx, del, warranty, stock }, i) => {
+  specs.forEach(({ cond, lt, supIdx, del, warranty, stock, bg }, i) => {
     if (!prices[i]) return
     const sup = OFFER_SUPPLIERS[supIdx]
     offers.push({
@@ -1108,6 +1196,8 @@ function generateOffersForPart(partId: string, severity: string): Offer[] {
       condition:cond, conditionLt:lt, price:prices[i], delivery:del,
       partNumber:`${cond==='oem'?'BMW':'OE'}-${partId.replace(/_/g,'').slice(0,6).toUpperCase()}-${1000+i*37}`,
       warranty, stock, recommended:false, description:descMap[cond], location:sup.location,
+      cardBg: bg,
+      donorVehicle: cond==='used' ? donor : undefined,
     })
   })
   const rec = offers.find(o => (o.condition==='used'||o.condition==='aftermarket') && o.stock!=='order')
