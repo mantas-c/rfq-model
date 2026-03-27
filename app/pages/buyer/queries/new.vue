@@ -552,77 +552,103 @@
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- STEP 4 · Damage details                     -->
+    <!-- STEP 4 · Automatic Offers                   -->
     <!-- ═══════════════════════════════════════════ -->
-    <div v-if="step === 4" class="flex-1 overflow-y-auto p-6">
-      <div class="max-w-2xl mx-auto space-y-4">
-        <div class="mb-6">
-          <h2 class="text-xl font-bold" style="color:#0F172A;">Žalos detalės</h2>
-          <p class="text-sm mt-1" style="color:#64748B;">Peržiūrėkite AI pasiūlymus ir patikslinkite jei reikia</p>
-        </div>
+    <div v-if="step === 4" class="flex-1 flex flex-col overflow-hidden">
 
-        <div v-for="(pd, i) in partDetails" :key="pd.id" class="rounded-2xl overflow-hidden" style="background:#fff; border:1px solid #E2E8F0;">
-          <div class="flex items-center gap-3 px-5 py-3.5" style="background:#FAFAFA; border-bottom:1px solid #F1F5F9;">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="background:#DCFCE7; color:#14A34A;">{{ i+1 }}</div>
-            <p class="text-sm font-bold" style="color:#0F172A;">{{ pd.label }}</p>
-            <span v-if="aiIds.has(pd.id)" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded" style="background:#EEF2FF; color:#6366F1;">AI</span>
-            <span class="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full" style="background:#F1F5F9; color:#64748B;">{{ viewLabel(pd.view) }}</span>
+      <!-- Header -->
+      <div class="flex-shrink-0 flex items-center justify-between px-5 py-4" style="background:#fff; border-bottom:1px solid #E2E8F0;">
+        <div>
+          <div class="flex items-center gap-2 mb-0.5">
+            <div class="w-5 h-5 rounded-lg flex items-center justify-center" style="background:#EFF6FF;">
+              <svg class="w-3 h-3" style="color:#3B82F6;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <h2 class="text-base font-bold" style="color:#0F172A;">Automatiniai pasiūlymai</h2>
           </div>
-          <div class="p-5 space-y-4">
-            <div>
-              <label class="block text-xs font-semibold mb-2" style="color:#475569;">Žalos laipsnis</label>
-              <div class="flex gap-2">
-                <button v-for="sev in severities" :key="sev.key" @click="pd.severity = sev.key"
-                  class="flex-1 py-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-center"
-                  :style="pd.severity === sev.key ? `background:${sev.bg}; color:${sev.color}; border:1.5px solid ${sev.border};` : 'background:#F8FAFC; color:#64748B; border:1px solid #E2E8F0;'">
-                  {{ sev.icon }} {{ sev.label }}
-                </button>
+          <p class="text-xs" style="color:#64748B;">recar algoritmas surado geriausius pasiūlymus kiekvienai daliai</p>
+        </div>
+        <div class="text-right ml-4 flex-shrink-0">
+          <p class="text-sm font-bold" style="color:#0F172A;">{{ selectedOfferCount }}/{{ partDetails.length }} pasirinkta</p>
+          <p v-if="totalPrice > 0" class="text-xs font-semibold" style="color:#14A34A;">~€{{ totalPrice.toLocaleString() }}</p>
+        </div>
+      </div>
+
+      <!-- Parts + offer cards scroll -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div v-for="pd in partDetails" :key="pd.id" class="rounded-2xl overflow-hidden" style="background:#fff; border:1px solid #E2E8F0;">
+
+          <!-- Part header -->
+          <div class="flex items-center gap-2.5 px-4 py-3" style="background:#FAFAFA; border-bottom:1px solid #F1F5F9;">
+            <div class="w-2 h-2 rounded-full flex-shrink-0"
+              :style="pd.severity==='major' ? 'background:#EF4444;' : pd.severity==='medium' ? 'background:#F59E0B;' : 'background:#22C55E;'"></div>
+            <p class="text-sm font-bold flex-1" style="color:#0F172A;">{{ pd.label }}</p>
+            <span v-if="aiIds.has(pd.id)" class="text-[9px] font-bold px-1.5 py-0.5 rounded" style="background:#EEF2FF; color:#6366F1;">AI</span>
+            <span class="text-[11px]" style="color:#94A3B8;">{{ (partOffers[pd.id]??[]).length }} pasiūl.</span>
+            <span v-if="selectedOffers[pd.id]" class="w-5 h-5 rounded-full flex items-center justify-center ml-1 flex-shrink-0" style="background:#DCFCE7; border:1px solid #86EFAC;">
+              <svg class="w-3 h-3" style="color:#14A34A;" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </span>
+          </div>
+
+          <!-- 2-column offer grid -->
+          <div class="p-3 grid grid-cols-2 gap-2.5">
+            <div v-for="offer in (partOffers[pd.id]??[])" :key="offer.id"
+              class="offer-card relative rounded-xl p-3 cursor-pointer transition-all"
+              :style="`border:1.5px solid ${selectedOffers[pd.id]===offer.id ? '#14A34A' : hoveredOfferId===offer.id ? '#94A3B8' : '#E2E8F0'}; background:${selectedOffers[pd.id]===offer.id ? '#F0FDF4' : '#F8FAFC'};`"
+              @mouseenter="hoveredOfferId=offer.id" @mouseleave="hoveredOfferId=null"
+              @click="selectOffer(pd.id, offer.id)">
+
+              <!-- Recommended badge -->
+              <div v-if="offer.recommended" class="absolute -top-2.5 left-2.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full z-10"
+                style="background:#3B82F6; color:#fff; white-space:nowrap;">★ rekomenduojama</div>
+
+              <!-- Selected tick -->
+              <div v-if="selectedOffers[pd.id]===offer.id" class="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center" style="background:#14A34A;">
+                <svg class="w-2.5 h-2.5" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              </div>
+
+              <!-- Supplier -->
+              <div class="flex items-center gap-1.5 mb-2">
+                <div class="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-bold flex-shrink-0" style="background:#1E293B; color:#fff;">{{ offer.supplierInitials }}</div>
+                <span class="text-[10px] font-semibold" style="color:#0F172A; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:90px;">{{ offer.supplierName }}</span>
+              </div>
+
+              <!-- Condition -->
+              <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded mb-2" :style="conditionStyle(offer.condition)">{{ offer.conditionLt }}</span>
+
+              <!-- Price -->
+              <p class="text-base font-black mb-1.5" style="color:#0F172A; line-height:1.1;">€{{ offer.price }}</p>
+
+              <!-- Delivery + stock -->
+              <div class="flex items-center gap-1 mb-2">
+                <span class="text-[9px]" style="color:#64748B;">{{ offer.delivery }}d.d.</span>
+                <span class="text-[9px] font-semibold px-1 py-0.5 rounded"
+                  :style="offer.stock==='in_stock' ? 'background:#F0FDF4; color:#14A34A;' : offer.stock==='low_stock' ? 'background:#FFFBEB; color:#D97706;' : 'background:#F1F5F9; color:#64748B;'">
+                  {{ offer.stock==='in_stock' ? '✓ Sandėlyje' : offer.stock==='low_stock' ? '⚠ Mažai' : '↻ Užsakoma' }}
+                </span>
+              </div>
+
+              <!-- Rating + view link -->
+              <div class="flex items-center justify-between pt-2" style="border-top:1px solid #F1F5F9;">
+                <span class="text-[10px]" style="color:#F59E0B;">★ {{ offer.supplierRating }}</span>
+                <button @click.stop="openOffer(offer, pd.id)" class="text-[10px] font-semibold cursor-pointer" style="color:#3B82F6;">Daugiau →</button>
               </div>
             </div>
-            <div>
-              <label class="block text-xs font-semibold mb-1.5" style="color:#475569;">Pažeidimo aprašymas <span style="color:#94A3B8;">(neprivaloma)</span></label>
-              <textarea v-model="pd.description" rows="2" :placeholder="pd.placeholder"
-                class="w-full px-3.5 py-2.5 text-sm rounded-xl focus:outline-none resize-none"
-                style="background:#F8FAFC; border:1px solid #E2E8F0; color:#0F172A; font-family:inherit;"></textarea>
-            </div>
           </div>
         </div>
+      </div>
 
-        <div class="rounded-2xl p-5" style="background:#fff; border:1px solid #E2E8F0;">
-          <h3 class="text-sm font-bold mb-4" style="color:#0F172A;">Bendra informacija</h3>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold mb-2" style="color:#475569;">Skubumas</label>
-              <div class="flex gap-2">
-                <button @click="priority = 'normal'" class="flex-1 py-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
-                  :style="priority==='normal' ? 'background:#EFF6FF; color:#3B82F6; border:1.5px solid #BFDBFE;' : 'background:#F8FAFC; color:#64748B; border:1px solid #E2E8F0;'">Įprastas (2–5 d.d.)</button>
-                <button @click="priority = 'urgent'" class="flex-1 py-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
-                  :style="priority==='urgent' ? 'background:#FEF2F2; color:#EF4444; border:1.5px solid #FECACA;' : 'background:#F8FAFC; color:#64748B; border:1px solid #E2E8F0;'">🔴 Skubu (iki 24 val.)</button>
-              </div>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold mb-1.5" style="color:#475569;">Papildomos pastabos</label>
-              <textarea v-model="notes" rows="2" placeholder="pvz. Originali dalis pageidaujama..." class="w-full px-3.5 py-2.5 text-sm rounded-xl focus:outline-none resize-none" style="background:#F8FAFC; border:1px solid #E2E8F0; color:#0F172A; font-family:inherit;"></textarea>
-            </div>
-          </div>
+      <!-- Bottom action bar -->
+      <div class="flex-shrink-0 flex items-center gap-3 px-4 py-3" style="background:#fff; border-top:1px solid #E2E8F0;">
+        <button @click="step = 3" class="px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer hover:bg-slate-50 transition-colors" style="border:1px solid #E2E8F0; color:#475569;">← Atgal</button>
+        <div class="flex-1 text-center">
+          <p class="text-xs font-bold" style="color:#0F172A;">{{ selectedOfferCount }} / {{ partDetails.length }} dalių pasirinkta</p>
+          <p v-if="totalPrice > 0" class="text-[11px] font-semibold" style="color:#14A34A;">iš viso ~€{{ totalPrice.toLocaleString() }}</p>
         </div>
-
-        <div class="rounded-2xl overflow-hidden" style="background:#fff; border:1px solid #E2E8F0;">
-          <div class="px-5 py-4 flex items-center justify-between" style="background:#F0FDF4; border-bottom:1px solid #DCFCE7;">
-            <div>
-              <p class="text-sm font-bold" style="color:#14A34A;">{{ vehicle?.make }} {{ vehicle?.model }} {{ vehicle?.year }}</p>
-              <p class="text-xs mt-0.5" style="color:#64748B;">{{ partDetails.length }} užklausa(-os) bus siunčiamos tiekėjams</p>
-            </div>
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full" :style="priority==='urgent' ? 'background:#FEF2F2; color:#EF4444;' : 'background:#EFF6FF; color:#3B82F6;'">{{ priority==='urgent' ? '🔴 Skubu' : 'Įprastas' }}</span>
-          </div>
-          <div class="p-5 flex gap-3">
-            <button @click="step = 3" class="flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-colors hover:bg-slate-100" style="border:1px solid #E2E8F0; color:#475569;">← Atgal</button>
-            <button @click="submit" class="flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-opacity hover:opacity-90 flex items-center justify-center gap-2" style="background:#14A34A; color:#fff;">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-              Pateikti {{ partDetails.length }} užklausą(-as)
-            </button>
-          </div>
-        </div>
+        <button @click="submit" :disabled="selectedOfferCount === 0"
+          class="px-5 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-all"
+          :style="selectedOfferCount > 0 ? 'background:#14A34A; color:#fff;' : 'background:#F1F5F9; color:#CBD5E1; cursor:not-allowed;'">
+          Pateikti ({{ selectedOfferCount }}) →
+        </button>
       </div>
     </div>
 
@@ -665,6 +691,71 @@
     </div>
 
   </div>
+
+  <!-- ── Offer detail modal ─────────────────────────────────── -->
+  <Teleport to="body">
+    <div v-if="viewingOffer" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:p-4"
+      style="background:rgba(15,23,42,0.65);" @click.self="viewingOffer = null">
+      <div class="w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl" style="background:#fff;">
+
+        <!-- Supplier header -->
+        <div class="flex items-center gap-3 px-5 py-4" style="background:#0F172A;">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0" style="background:rgba(255,255,255,0.1); color:#fff;">{{ viewingOffer.supplierInitials }}</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-sm text-white truncate">{{ viewingOffer.supplierName }}</p>
+            <p class="text-xs mt-0.5" style="color:#94A3B8;">★ {{ viewingOffer.supplierRating }} · {{ viewingOffer.supplierReviews }} atsiliepimai</p>
+          </div>
+          <button @click="viewingOffer = null" class="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer flex-shrink-0" style="background:rgba(255,255,255,0.08); color:#94A3B8; font-size:15px; line-height:1;">✕</button>
+        </div>
+
+        <div class="p-5 space-y-4">
+          <!-- Condition + part number -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-lg" :style="conditionStyle(viewingOffer.condition)">{{ viewingOffer.conditionLt }}</span>
+            <span class="text-xs font-mono" style="color:#94A3B8;">{{ viewingOffer.partNumber }}</span>
+          </div>
+
+          <!-- Price card -->
+          <div class="rounded-xl p-4" style="background:#F0FDF4; border:1px solid #DCFCE7;">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-3xl font-black" style="color:#0F172A; line-height:1;">€{{ viewingOffer.price }}</p>
+                <p class="text-xs mt-1.5" style="color:#64748B;">Pristatymas per {{ viewingOffer.delivery }} d.d.</p>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-bold px-2 py-1 rounded-lg"
+                  :style="viewingOffer.stock==='in_stock' ? 'background:#DCFCE7; color:#14A34A;' : viewingOffer.stock==='low_stock' ? 'background:#FEF3C7; color:#D97706;' : 'background:#F1F5F9; color:#64748B;'">
+                  {{ viewingOffer.stock==='in_stock' ? '✓ Sandėlyje' : viewingOffer.stock==='low_stock' ? '⚠ Mažai liko' : '↻ Užsakoma' }}
+                </span>
+                <p class="text-xs mt-2" style="color:#64748B;">Garantija: <span class="font-semibold" style="color:#0F172A;">{{ viewingOffer.warranty }}</span></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="flex items-center gap-2 text-xs" style="color:#64748B;">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            {{ viewingOffer.location }}
+          </div>
+
+          <!-- Description -->
+          <p class="text-xs p-3 rounded-xl leading-relaxed" style="background:#F8FAFC; border:1px solid #F1F5F9; color:#475569;">{{ viewingOffer.description }}</p>
+        </div>
+
+        <!-- Action -->
+        <div class="px-5 pb-5">
+          <button @click="selectViewingOffer"
+            class="w-full py-3 rounded-xl text-sm font-bold cursor-pointer transition-all"
+            :style="viewingPartId && selectedOffers[viewingPartId] === viewingOffer.id
+              ? 'background:#DCFCE7; color:#14A34A; border:1.5px solid #86EFAC;'
+              : 'background:#14A34A; color:#fff;'">
+            {{ viewingPartId && selectedOffers[viewingPartId] === viewingOffer.id ? '✓ Pasirinkta' : '✓ Pasirinkti šį pasiūlymą' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
 </template>
 
 <script setup lang="ts">
@@ -673,7 +764,7 @@ useHead({ title: 'Nauja užklausa — recar BUY' })
 
 // ── Wizard state ────────────────────────────────────────────
 const step       = ref(1)
-const stepLabels = ['Transporto priemonė', 'AI analizė', 'Diagrama', 'Žalos detalės']
+const stepLabels = ['Transporto priemonė', 'AI analizė', 'Diagrama', 'Pasiūlymai']
 
 // ── Step 1: Vehicle ─────────────────────────────────────────
 const lookupMode = ref<'vin'|'plate'>('vin')
@@ -684,13 +775,15 @@ const decoding   = ref(false)
 interface Vehicle { vin:string; make:string; model:string; year:number; engine:string; power:string; body:string; color:string; colorName:string; colorBg:string; colorAccent:string }
 
 const vehicleDb: Record<string, Vehicle> = {
-  'WBA3B51090F000001': { vin:'WBA3B51090F000001', make:'BMW',        model:'5 Series 520d',  year:2009, engine:'2.0d',    power:'177 AG', body:'Sedanas',  color:'#8B9297', colorName:'Titansilber',    colorBg:'#F1F5F9', colorAccent:'#64748B' },
+  'WBA3B51090F000001': { vin:'WBA3B51090F000001', make:'BMW', model:'5 Series 520d',       year:2009, engine:'2.0d', power:'177 AG', body:'Sedanas', color:'#8B9297', colorName:'Titansilber',  colorBg:'#F1F5F9', colorAccent:'#64748B' },
+  'WBA92E0000000001':  { vin:'WBA92E0000000001',  make:'BMW', model:'3 Series 320d Coupé', year:2010, engine:'2.0d', power:'177 AG', body:'Kupė',    color:'#F8FAFC', colorName:'Alpine White', colorBg:'#F8FAFC', colorAccent:'#CBD5E1' },
   'WAUZZZ8K9BA000001': { vin:'WAUZZZ8K9BA000001', make:'Audi',       model:'A4 2.0 TDI',     year:2014, engine:'2.0 TDI', power:'150 AG', body:'Sedanas',  color:'#111',    colorName:'Phantom Black',  colorBg:'#F1F5F9', colorAccent:'#1E293B' },
   'ABC123':            { vin:'ABC123',            make:'Volkswagen', model:'Golf VII 1.6 TDI',year:2016, engine:'1.6 TDI', power:'105 AG', body:'Hečbekas', color:'#fff',    colorName:'Pure White',     colorBg:'#F8FAFC', colorAccent:'#94A3B8' },
   'LTA123':            { vin:'LTA123',            make:'Toyota',     model:'Camry 2.5i',      year:2020, engine:'2.5i',    power:'178 AG', body:'Sedanas',  color:'#C0C0C0', colorName:'Silver Metallic', colorBg:'#F1F5F9', colorAccent:'#94A3B8' },
 }
 const vehicle = ref<Vehicle|null>(null)
 const examples = [
+  { label:'BMW 3 (E92)', vin:'WBA92E0000000001'  },
   { label:'BMW 5 (E60)', vin:'WBA3B51090F000001' },
   { label:'Audi A4',     vin:'WAUZZZ8K9BA000001' },
   { label:'VW Golf VII', vin:'ABC123' },
@@ -923,12 +1016,30 @@ function getPlaceholder(id: string) {
 
 function goToStep4() {
   const aiSeverity = aiResult.value?.severity ?? 'minor'
-  partDetails.value = selectedParts.value.map(p => ({
+  // Deduplicate parts that appear in multiple diagram views (e.g. hood + hood_front)
+  const seenLabels = new Set<string>()
+  const uniqueParts = selectedParts.value.filter(p => {
+    if (seenLabels.has(p.label)) return false
+    seenLabels.add(p.label)
+    return true
+  })
+  partDetails.value = uniqueParts.map(p => ({
     id: p.id, label: p.label, view: p.view,
     severity: aiIds.value.has(p.id) ? aiSeverity : 'minor',
     description: aiResult.value?.damage_notes?.[p.id] ?? '',
     placeholder: getPlaceholder(p.id),
   }))
+  // Generate offers and auto-select recommended per part
+  const offers: Record<string, Offer[]> = {}
+  const autoSel: Record<string, string> = {}
+  for (const pd of partDetails.value) {
+    const os = generateOffersForPart(pd.id, pd.severity)
+    offers[pd.id] = os
+    const rec = os.find(o => o.recommended) ?? os[0]
+    if (rec) autoSel[pd.id] = rec.id
+  }
+  partOffers.value     = offers
+  selectedOffers.value = autoSel
   step.value = 4
 }
 
@@ -945,10 +1056,106 @@ function severityLt(s: string) {
   return 'Smulki žala'
 }
 
+// ── Step 4: Automatic Offers ─────────────────────────────────
+interface Offer {
+  id: string; supplierName: string; supplierInitials: string
+  supplierRating: number; supplierReviews: number
+  condition: 'oem'|'used'|'aftermarket'|'refurbished'; conditionLt: string
+  price: number; delivery: number; partNumber: string
+  warranty: string; stock: 'in_stock'|'low_stock'|'order'
+  recommended: boolean; description: string; location: string
+}
+const OFFER_SUPPLIERS = [
+  { initials:'BM', name:'BMW AG Center',    rating:4.9, reviews:234,  location:'Vilnius, Laisvės pr. 28' },
+  { initials:'AD', name:'AutoDalys24.lt',   rating:4.6, reviews:1042, location:'Kaunas, Pramonės pr. 14' },
+  { initials:'EC', name:'EuroCarParts.eu',  rating:4.4, reviews:876,  location:'Ryga, LV (2–3 d.d.)' },
+  { initials:'BA', name:'BalticAuto Parts', rating:4.3, reviews:512,  location:'Vilnius, Savanorių pr. 7' },
+]
+// Prices: [OEM, used, aftermarket, refurbished] — 0 = not available
+const OFFER_PRICES: Record<string, [number,number,number,number]> = {
+  hood:[840,240,0,190], hood_front:[840,240,0,190], front_bumper:[680,160,260,0],
+  lh_light:[520,145,225,100], rh_light:[520,145,225,100],
+  lf_fender:[560,150,200,115], rf_fender:[560,150,200,115],
+  lf_wing:[560,150,200,115], rf_wing:[560,150,200,115],
+  front_grille:[360,90,140,0], windshield:[680,0,280,0], roof:[1200,380,0,0],
+  trunk:[780,190,0,140], trunk_lid:[780,190,0,140],
+  rear_bumper:[540,130,210,0], rear_b_panel:[540,130,210,0],
+  lt_light:[380,110,175,85], rt_light:[380,110,175,85],
+  lf_door:[980,280,0,0], rf_door:[980,280,0,0], lr_door:[880,250,0,0], rr_door:[880,250,0,0],
+  left_mirror:[340,85,140,0], right_mirror:[340,85,140,0],
+}
+function generateOffersForPart(partId: string, severity: string): Offer[] {
+  const prices = OFFER_PRICES[partId] ?? [400,110,165,90] as [number,number,number,number]
+  const specs = [
+    { cond:'oem'          as const, lt:'Originalas (OEM)', supIdx:0, del:3, warranty:'24 mėn.', stock:'in_stock'  as const },
+    { cond:'used'         as const, lt:'Naudota',          supIdx:1, del:1, warranty:'6 mėn.',  stock:(severity==='major' ? 'low_stock' : 'in_stock') as 'in_stock'|'low_stock' },
+    { cond:'aftermarket'  as const, lt:'Analogas',         supIdx:2, del:5, warranty:'12 mėn.', stock:'in_stock'  as const },
+    { cond:'refurbished'  as const, lt:'Renovuota',        supIdx:3, del:7, warranty:'12 mėn.', stock:'order'     as const },
+  ]
+  const descMap: Record<string,string> = {
+    oem:         'Originali BMW gamyklinė dalis. Garantuota kokybė ir tikslus tinkamumas su automobilio VIN kodu.',
+    used:        'Demontavimo dalis iš panašaus automobilio. Patikrinta, nuvalyta, išbandyta prieš siuntimą.',
+    aftermarket: 'Aukštos kokybės analogas pagamintas pagal OEM specifikacijas. CE ženklas.',
+    refurbished: 'Profesionaliai renovuota dalis su pilna mechaninių darbų garantija.',
+  }
+  const offers: Offer[] = []
+  specs.forEach(({ cond, lt, supIdx, del, warranty, stock }, i) => {
+    if (!prices[i]) return
+    const sup = OFFER_SUPPLIERS[supIdx]
+    offers.push({
+      id:`${partId}_${cond}`, supplierName:sup.name, supplierInitials:sup.initials,
+      supplierRating:sup.rating, supplierReviews:sup.reviews,
+      condition:cond, conditionLt:lt, price:prices[i], delivery:del,
+      partNumber:`${cond==='oem'?'BMW':'OE'}-${partId.replace(/_/g,'').slice(0,6).toUpperCase()}-${1000+i*37}`,
+      warranty, stock, recommended:false, description:descMap[cond], location:sup.location,
+    })
+  })
+  const rec = offers.find(o => (o.condition==='used'||o.condition==='aftermarket') && o.stock!=='order')
+  if (rec) rec.recommended = true
+  return offers
+}
+const partOffers     = ref<Record<string,Offer[]>>({})
+const selectedOffers = ref<Record<string,string>>({})
+const viewingOffer   = ref<Offer|null>(null)
+const viewingPartId  = ref<string|null>(null)
+const hoveredOfferId = ref<string|null>(null)
+const selectedOfferCount = computed(() => Object.keys(selectedOffers.value).length)
+const totalPrice = computed(() => {
+  let sum = 0
+  for (const [partId, offerId] of Object.entries(selectedOffers.value)) {
+    const o = (partOffers.value[partId]??[]).find(x => x.id===offerId)
+    if (o) sum += o.price
+  }
+  return sum
+})
+function selectOffer(partId: string, offerId: string) {
+  const next = { ...selectedOffers.value }
+  if (next[partId] === offerId) delete next[partId]
+  else next[partId] = offerId
+  selectedOffers.value = next
+}
+function openOffer(offer: Offer, partId: string) {
+  viewingOffer.value = offer; viewingPartId.value = partId
+}
+function selectViewingOffer() {
+  if (viewingOffer.value && viewingPartId.value) {
+    selectOffer(viewingPartId.value, viewingOffer.value.id)
+    viewingOffer.value = null; viewingPartId.value = null
+  }
+}
+function conditionStyle(cond: string) {
+  if (cond==='oem')         return 'background:#EFF6FF; color:#3B82F6;'
+  if (cond==='used')        return 'background:#FFFBEB; color:#D97706;'
+  if (cond==='aftermarket') return 'background:#F0FDF4; color:#14A34A;'
+  if (cond==='refurbished') return 'background:#F5F3FF; color:#7C3AED;'
+  return 'background:#F1F5F9; color:#64748B;'
+}
+
 function resetWizard() {
   step.value = 1; vehicle.value = null; vinInput.value = ''; plateInput.value = ''
   uploadedImages.value = []; aiState.value = 'idle'; aiResult.value = null
   selectedParts.value = []; partDetails.value = []
+  partOffers.value = {}; selectedOffers.value = {}; viewingOffer.value = null
   priority.value = 'normal'; notes.value = ''; activeView.value = 'top'
   analysisProgress.value = 0
 }
@@ -959,4 +1166,6 @@ function resetWizard() {
 .list-enter-from, .list-leave-to { opacity: 0; transform: translateX(-10px); }
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 .animate-spin-slow { animation: spin-slow 2s linear infinite; }
+.offer-card { transition: box-shadow 0.15s ease; }
+.offer-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
 </style>
